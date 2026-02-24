@@ -10,6 +10,12 @@ Rails.application.routes.draw do
 
   resource :settings, only: %i[edit update]
 
+  resource :google_calendar, only: [], controller: "google_calendar" do
+    get :connect
+    get :callback
+    delete :disconnect
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 end

@@ -10,6 +10,17 @@
     <% end %>
   <% end %>
 
+  <%= render layout: "ui/card", locals: { title: "Google Calendar", description: "Connect your calendar to check availability and create events." } do %>
+    <% if Current.user.google_calendar_connected? %>
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-green-600 font-medium">Connected</span>
+        <%= render "ui/button", label: "Disconnect", href: disconnect_google_calendar_path, method: :delete, variant: :danger, size: :sm %>
+      </div>
+    <% else %>
+      <%= render "ui/button", label: "Connect Google Calendar", href: connect_google_calendar_path, variant: :secondary %>
+    <% end %>
+  <% end %>
+
   <%= render layout: "ui/card", locals: { title: "Team", description: "People in your workspace." } do %>
     <% if @team_members.any? %>
       <ul class="divide-y divide-gray-200 -mx-6">

@@ -6,57 +6,57 @@ Users connect their Google Calendar so the system can read existing events to de
 
 ## Tasks
 
-- [ ] Add `google-apis-calendar_v3` gem (manual OAuth2 flow, not omniauth)
-- [ ] Create Google Cloud project, enable Calendar API
-- [ ] Store Google OAuth credentials in Rails credentials (`google.client_id`, `google.client_secret`)
-- [ ] Build OAuth connection flow controller (`GoogleCalendarController`)
-- [ ] `GET /google_calendar/connect` — redirects to Google OAuth consent screen
-- [ ] `GET /google_calendar/callback` — handles callback, stores encrypted tokens on User
-- [ ] `DELETE /google_calendar/disconnect` — clears tokens, sets `google_calendar_connected: false`
-- [ ] OAuth scopes: `calendar.readonly` and `calendar.events`
-- [ ] Encrypt tokens with `encrypts :google_calendar_token, :google_calendar_refresh_token`
-- [ ] Create `GoogleCalendarService` with methods:
+- [x] Add `google-apis-calendar_v3` gem (manual OAuth2 flow, not omniauth)
+- [x] Create Google Cloud project, enable Calendar API
+- [x] Store Google OAuth credentials in Rails credentials (`google.client_id`, `google.client_secret`)
+- [x] Build OAuth connection flow controller (`GoogleCalendarController`)
+- [x] `GET /google_calendar/connect` — redirects to Google OAuth consent screen
+- [x] `GET /google_calendar/callback` — handles callback, stores encrypted tokens on User
+- [x] `DELETE /google_calendar/disconnect` — clears tokens, sets `google_calendar_connected: false`
+- [x] OAuth scopes: `calendar.readonly` and `calendar.events`
+- [x] Encrypt tokens with `encrypts :google_calendar_token, :google_calendar_refresh_token`
+- [x] Create `GoogleCalendarService` with methods:
   - `#events(start_date, end_date)`
   - `#busy_times(start_date, end_date)` — returns `[{start: DateTime, end: DateTime}]`
   - `#create_event(title:, start_time:, end_time:, description:, location:)`
-- [ ] Handle automatic token refresh when access token expires
-- [ ] Handle API errors gracefully (revoked access, rate limits, network errors)
-- [ ] Add connection status to settings page: "Connect Google Calendar" or "Connected — Disconnect"
+- [x] Handle automatic token refresh when access token expires
+- [x] Handle API errors gracefully (revoked access, rate limits, network errors)
+- [x] Add connection status to settings page: "Connect Google Calendar" or "Connected — Disconnect"
 
 ## TDD Cycles
 
 ### Cycle 1: OAuth Credential Storage
-- [ ] Test: User model encrypts `google_calendar_token` and `google_calendar_refresh_token`
-- [ ] Test: User has `google_calendar_connected` boolean (default: false)
-- [ ] Test: User has `google_calendar_token_expires_at` datetime
-- [ ] Implement: add `encrypts` declarations to User model (fields already exist from Phase 1 migration)
+- [x] Test: User model encrypts `google_calendar_token` and `google_calendar_refresh_token`
+- [x] Test: User has `google_calendar_connected` boolean (default: false)
+- [x] Test: User has `google_calendar_token_expires_at` datetime
+- [x] Implement: add `encrypts` declarations to User model (fields already exist from Phase 1 migration)
 
 ### Cycle 2: OAuth Controller Flow
-- [ ] Test: `GET /google_calendar/connect` redirects to Google OAuth URL with correct scopes
-- [ ] Test: `GET /google_calendar/connect` requires authentication
-- [ ] Test: `GET /google_calendar/callback` stores tokens on current user
-- [ ] Test: `GET /google_calendar/callback` sets `google_calendar_connected: true`
-- [ ] Test: `GET /google_calendar/callback` redirects to settings with success flash
-- [ ] Test: `DELETE /google_calendar/disconnect` clears all token fields
-- [ ] Test: `DELETE /google_calendar/disconnect` sets `google_calendar_connected: false`
-- [ ] Implement: `GoogleCalendarController` with connect, callback, disconnect actions
+- [x] Test: `GET /google_calendar/connect` redirects to Google OAuth URL with correct scopes
+- [x] Test: `GET /google_calendar/connect` requires authentication
+- [x] Test: `GET /google_calendar/callback` stores tokens on current user
+- [x] Test: `GET /google_calendar/callback` sets `google_calendar_connected: true`
+- [x] Test: `GET /google_calendar/callback` redirects to settings with success flash
+- [x] Test: `DELETE /google_calendar/disconnect` clears all token fields
+- [x] Test: `DELETE /google_calendar/disconnect` sets `google_calendar_connected: false`
+- [x] Implement: `GoogleCalendarController` with connect, callback, disconnect actions
 
 ### Cycle 3: GoogleCalendarService (with Mocks)
-- [ ] Test: `#busy_times` returns array of `{start:, end:}` hashes for busy periods
-- [ ] Test: `#busy_times` handles empty calendar (returns empty array)
-- [ ] Test: `#busy_times` converts API response times to UTC
-- [ ] Test: `#create_event` calls Google Calendar API with correct parameters
-- [ ] Test: `#create_event` returns the created event's ID
-- [ ] Test: service raises descriptive error when user not connected
-- [ ] Test: service handles API errors (returns empty array or raises specific exception)
-- [ ] Implement: `app/services/google_calendar_service.rb`
+- [x] Test: `#busy_times` returns array of `{start:, end:}` hashes for busy periods
+- [x] Test: `#busy_times` handles empty calendar (returns empty array)
+- [x] Test: `#busy_times` converts API response times to UTC
+- [x] Test: `#create_event` calls Google Calendar API with correct parameters
+- [x] Test: `#create_event` returns the created event's ID
+- [x] Test: service raises descriptive error when user not connected
+- [x] Test: service handles API errors (returns empty array or raises specific exception)
+- [x] Implement: `app/services/google_calendar_service.rb`
 
 ### Cycle 4: Token Refresh
-- [ ] Test: service refreshes token when `google_calendar_token_expires_at` is past
-- [ ] Test: refreshed token is saved to user record
-- [ ] Test: service works transparently after token refresh
-- [ ] Test: service handles refresh failure (revoked access) gracefully
-- [ ] Implement: token refresh logic in `GoogleCalendarService`
+- [x] Test: service refreshes token when `google_calendar_token_expires_at` is past
+- [x] Test: refreshed token is saved to user record
+- [x] Test: service works transparently after token refresh
+- [x] Test: service handles refresh failure (revoked access) gracefully
+- [x] Implement: token refresh logic in `GoogleCalendarService`
 
 ## Key Files
 
@@ -73,11 +73,11 @@ test/controllers/google_calendar_controller_test.rb
 
 ## Acceptance Criteria
 
-- [ ] User can connect Google Calendar from settings page
-- [ ] User can disconnect Google Calendar from settings page
-- [ ] Tokens encrypted at rest (not readable in database)
-- [ ] Token refresh works transparently (user doesn't need to re-authorize)
-- [ ] `GoogleCalendarService#busy_times` returns accurate busy periods
-- [ ] `GoogleCalendarService#create_event` creates events on connected calendar
-- [ ] Connection status visible in settings UI
-- [ ] Graceful handling when Google API is unavailable
+- [x] User can connect Google Calendar from settings page
+- [x] User can disconnect Google Calendar from settings page
+- [x] Tokens encrypted at rest (not readable in database)
+- [x] Token refresh works transparently (user doesn't need to re-authorize)
+- [x] `GoogleCalendarService#busy_times` returns accurate busy periods
+- [x] `GoogleCalendarService#create_event` creates events on connected calendar
+- [x] Connection status visible in settings UI
+- [x] Graceful handling when Google API is unavailable

@@ -43,6 +43,9 @@ gem "image_processing", "~> 1.2"
 # Tailwind CSS [https://github.com/rails/tailwindcss-rails]
 gem "tailwindcss-rails"
 
+# Google Calendar API [https://github.com/googleapis/google-api-ruby-client]
+gem "google-apis-calendar_v3"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

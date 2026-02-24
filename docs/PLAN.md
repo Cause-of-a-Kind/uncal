@@ -4,8 +4,8 @@
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | [Authentication & User Foundation](phases/01-authentication.md) | `[ ] Pending` |
-| 2 | [Google Calendar Integration](phases/02-google-calendar.md) | `[ ] Pending` |
+| 1 | [Authentication & User Foundation](phases/01-authentication.md) | `[x] Complete` |
+| 2 | [Google Calendar Integration](phases/02-google-calendar.md) | `[x] Complete` |
 | 3 | [Schedule Links (Core)](phases/03-schedule-links.md) | `[ ] Pending` |
 | 4 | [Availability Windows](phases/04-availability-windows.md) | `[ ] Pending` |
 | 5 | [Availability Calculation Engine](phases/05-availability-engine.md) | `[ ] Pending` |
