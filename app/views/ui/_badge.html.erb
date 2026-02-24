@@ -1,0 +1,13 @@
+<%# locals: (label:, color: :gray) %>
+<%
+  css = case color.to_sym
+    when :green  then "bg-green-50 text-green-700 ring-green-600/20"
+    when :red    then "bg-red-50 text-red-700 ring-red-600/20"
+    when :yellow then "bg-yellow-50 text-yellow-700 ring-yellow-600/20"
+    when :blue   then "bg-blue-50 text-blue-700 ring-blue-600/20"
+    else "bg-gray-50 text-gray-700 ring-gray-600/20"
+    end
+%>
+<span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset <%= css %>">
+  <%= label %>
+</span>

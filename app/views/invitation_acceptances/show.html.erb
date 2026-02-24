@@ -1,0 +1,13 @@
+<%= render layout: "ui/card", locals: { title: "Join Uncal" } do %>
+  <p class="text-sm text-gray-500 mb-4">You've been invited by <%= @invitation.invited_by.name %>. Create your account to get started.</p>
+
+  <%= form_with url: invitation_acceptance_path(token: @invitation.token), method: :patch, scope: :invitation_acceptance do |form| %>
+    <%= render "ui/form_field", form: form, field: :email_address, type: :email, label: "Email", value: @invitation.email, readonly: true %>
+    <%= render "ui/form_field", form: form, field: :name, type: :text, label: "Full name", required: true %>
+    <%= render "ui/form_field", form: form, field: :password, type: :password, label: "Password", required: true %>
+    <%= render "ui/form_field", form: form, field: :password_confirmation, type: :password, label: "Confirm password", required: true %>
+    <%= render "ui/form_field", form: form, field: :timezone, type: :select, label: "Timezone", options: timezone_options, required: true %>
+
+    <%= render "ui/button", label: "Create account" %>
+  <% end %>
+<% end %>

@@ -1,0 +1,15 @@
+<%# locals: (title:, description: nil, action_label: nil, action_path: nil) %>
+<div class="text-center py-12">
+  <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+  </svg>
+  <h3 class="mt-2 text-sm font-semibold text-gray-900"><%= title %></h3>
+  <% if description %>
+    <p class="mt-1 text-sm text-gray-500"><%= description %></p>
+  <% end %>
+  <% if action_label && action_path %>
+    <div class="mt-6">
+      <%= render "ui/button", label: action_label, href: action_path, variant: :primary %>
+    </div>
+  <% end %>
+</div>

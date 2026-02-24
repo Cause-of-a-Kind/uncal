@@ -1,0 +1,7 @@
+<%= render layout: "ui/card", locals: { title: "Update your password" } do %>
+  <%= form_with url: password_path(params[:token]), method: :put do |form| %>
+    <%= render "ui/form_field", form: form, field: :password, type: :password, label: "New password", required: true %>
+    <%= render "ui/form_field", form: form, field: :password_confirmation, type: :password, label: "Confirm password", required: true %>
+    <%= render "ui/button", label: "Save new password" %>
+  <% end %>
+<% end %>

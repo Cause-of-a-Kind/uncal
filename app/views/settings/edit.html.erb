@@ -1,0 +1,45 @@
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+
+<div class="space-y-8">
+  <%= render layout: "ui/card", locals: { title: "Profile", description: "Update your personal information." } do %>
+    <%= form_with model: @user, url: settings_path do |form| %>
+      <%= render "ui/form_field", form: form, field: :name, required: true %>
+      <%= render "ui/form_field", form: form, field: :email_address, type: :email, label: "Email", required: true %>
+      <%= render "ui/form_field", form: form, field: :timezone, type: :select, label: "Timezone", options: timezone_options, required: true %>
+      <%= render "ui/button", label: "Save changes" %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Team", description: "People in your workspace." } do %>
+    <% if @team_members.any? %>
+      <ul class="divide-y divide-gray-200 -mx-6">
+        <% @team_members.each do |member| %>
+          <li class="flex items-center justify-between px-6 py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-900"><%= member.name %></p>
+              <p class="text-sm text-gray-500"><%= member.email_address %></p>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <% if @pending_invitations.any? %>
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">Pending invitations</h3>
+        <ul class="space-y-2">
+          <% @pending_invitations.each do |invitation| %>
+            <li class="flex items-center justify-between">
+              <span class="text-sm text-gray-500"><%= invitation.email %></span>
+              <%= render "ui/badge", label: "Pending", color: :yellow %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mt-4">
+      <%= render "ui/button", label: "Invite teammate", href: new_invitation_path, variant: :secondary %>
+    </div>
+  <% end %>
+</div>

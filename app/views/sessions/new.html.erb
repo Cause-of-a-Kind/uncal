@@ -1,0 +1,11 @@
+<%= render layout: "ui/card", locals: { title: "Sign in to your account" } do %>
+  <%= form_with url: session_url do |form| %>
+    <%= render "ui/form_field", form: form, field: :email_address, type: :email, required: true, placeholder: "you@example.com" %>
+    <%= render "ui/form_field", form: form, field: :password, type: :password, required: true, placeholder: "Your password" %>
+
+    <div class="flex items-center justify-between">
+      <%= render "ui/button", label: "Sign in" %>
+      <%= link_to "Forgot password?", new_password_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+    </div>
+  <% end %>
+<% end %>

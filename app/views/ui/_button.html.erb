@@ -1,0 +1,28 @@
+<%# locals: (label:, variant: :primary, size: :md, href: nil, method: nil, form: nil, disabled: false, type: "submit", data: {}) %>
+<%
+  base = "inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+
+  variant_css = case variant.to_sym
+    when :primary   then "bg-gray-900 text-white hover:bg-gray-800 focus:ring-gray-900"
+    when :secondary then "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500"
+    when :danger    then "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+    when :ghost     then "text-gray-700 hover:bg-gray-100 focus:ring-gray-500"
+    end
+
+  size_css = case size.to_sym
+    when :sm then "px-3 py-1.5 text-sm"
+    when :md then "px-4 py-2 text-sm"
+    when :lg then "px-6 py-3 text-base"
+    end
+
+  css = [base, variant_css, size_css].join(" ")
+  css += " opacity-50 cursor-not-allowed" if disabled
+%>
+
+<% if href %>
+  <%= link_to label, href, class: css, method: method, data: data %>
+<% else %>
+  <button type="<%= type %>" class="<%= css %>" <%= "disabled" if disabled %> <% data.each do |k, v| %>data-<%= k %>="<%= v %>"<% end %>>
+    <%= label %>
+  </button>
+<% end %>

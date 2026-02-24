@@ -1,0 +1,12 @@
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Invite teammate</h1>
+
+<%= render layout: "ui/card" do %>
+  <%= form_with model: @invitation do |form| %>
+    <%= render "ui/form_field", form: form, field: :email, type: :email, label: "Email address", required: true, placeholder: "teammate@example.com" %>
+
+    <div class="flex items-center gap-3">
+      <%= render "ui/button", label: "Send invitation" %>
+      <%= link_to "Cancel", invitations_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+    </div>
+  <% end %>
+<% end %>

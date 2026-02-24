@@ -1,0 +1,11 @@
+<%# locals: () %>
+<% flash.each do |type, message| %>
+  <% css = case type.to_s
+    when "notice" then "bg-green-50 text-green-800 border-green-200"
+    when "alert"  then "bg-red-50 text-red-800 border-red-200"
+    else "bg-blue-50 text-blue-800 border-blue-200"
+    end %>
+  <div class="mb-4 rounded-lg border px-4 py-3 text-sm <%= css %>">
+    <%= message %>
+  </div>
+<% end %>

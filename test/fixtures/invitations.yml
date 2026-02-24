@@ -1,0 +1,18 @@
+pending:
+  invited_by: one
+  email: pending@example.com
+  token: pending_token_abc123
+  expires_at: <%= 3.days.from_now.to_fs(:db) %>
+
+accepted:
+  invited_by: one
+  email: accepted@example.com
+  token: accepted_token_def456
+  accepted_at: <%= 2.days.ago.to_fs(:db) %>
+  expires_at: <%= 5.days.from_now.to_fs(:db) %>
+
+expired:
+  invited_by: one
+  email: expired@example.com
+  token: expired_token_ghi789
+  expires_at: <%= 1.day.ago.to_fs(:db) %>
