@@ -1,0 +1,12 @@
+<%= turbo_stream.append "day_#{@window.day_of_week}_windows" do %>
+  <%= render "availability_windows/window", window: @window, schedule_link: @schedule_link %>
+<% end %>
+
+<%= turbo_stream.remove "day_#{@window.day_of_week}_empty" %>
+
+<%= turbo_stream.replace "window_form_day_#{@window.day_of_week}" do %>
+  <%= render "availability_windows/form",
+    schedule_link: @schedule_link,
+    window: AvailabilityWindow.new(schedule_link: @schedule_link, user: @selected_user, day_of_week: @window.day_of_week),
+    selected_user: @selected_user %>
+<% end %>

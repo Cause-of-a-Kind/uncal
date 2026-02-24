@@ -6,8 +6,8 @@
 |-------|------|--------|
 | 1 | [Authentication & User Foundation](phases/01-authentication.md) | `[x] Complete` |
 | 2 | [Google Calendar Integration](phases/02-google-calendar.md) | `[x] Complete` |
-| 3 | [Schedule Links (Core)](phases/03-schedule-links.md) | `[ ] Pending` |
-| 4 | [Availability Windows](phases/04-availability-windows.md) | `[ ] Pending` |
+| 3 | [Schedule Links (Core)](phases/03-schedule-links.md) | `[x] Complete` |
+| 4 | [Availability Windows](phases/04-availability-windows.md) | `[x] Complete` |
 | 5 | [Availability Calculation Engine](phases/05-availability-engine.md) | `[ ] Pending` |
 | 6 | [Public Booking Page & Booking Creation](phases/06-public-booking.md) | `[ ] Pending` |
 | 7 | [Email Workflows](phases/07-email-workflows.md) | `[ ] Pending` |

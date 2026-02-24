@@ -1,0 +1,11 @@
+one_on_one:
+  schedule_link: one
+  user: one
+
+one_on_two:
+  schedule_link: two
+  user: one
+
+two_on_two:
+  schedule_link: two
+  user: two

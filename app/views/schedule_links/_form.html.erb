@@ -1,0 +1,70 @@
+<%# locals: (schedule_link:, users:) %>
+<%
+  duration_options = [[15, 15], [30, 30], [45, 45], [60, 60], [90, 90], [120, 120]]
+  buffer_options = [["None", 0], ["15 min", 15], ["30 min", 30], ["45 min", 45], ["60 min", 60], ["90 min", 90], ["120 min", 120]]
+%>
+
+<%= form_with model: schedule_link, class: "space-y-6" do |form| %>
+  <%= render layout: "ui/card", locals: { title: "Meeting Details", description: "Configure what guests will see when booking." } do %>
+    <%= render "ui/form_field", form: form, field: :name, label: "Link Name", required: true, hint: "Internal name for your reference." %>
+    <%= render "ui/form_field", form: form, field: :meeting_name, label: "Meeting Name", required: true, hint: "What guests see when booking." %>
+    <%= render "ui/form_field", form: form, field: :meeting_duration_minutes, type: :select, label: "Duration", options: duration_options, required: true %>
+
+    <div class="mb-4">
+      <span class="block text-sm font-medium text-gray-700 mb-1">Location Type</span>
+      <div class="flex gap-4">
+        <label class="inline-flex items-center gap-2">
+          <%= form.radio_button :meeting_location_type, "link", class: "text-gray-900 focus:ring-gray-900" %>
+          <span class="text-sm text-gray-700">Video / Link</span>
+        </label>
+        <label class="inline-flex items-center gap-2">
+          <%= form.radio_button :meeting_location_type, "physical", class: "text-gray-900 focus:ring-gray-900" %>
+          <span class="text-sm text-gray-700">Physical Address</span>
+        </label>
+      </div>
+    </div>
+
+    <%= render "ui/form_field", form: form, field: :meeting_location_value, label: "Location", placeholder: "https://zoom.us/j/... or address" %>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Scheduling Rules", description: "Control when and how often meetings can be booked." } do %>
+    <%= render "ui/form_field", form: form, field: :timezone, type: :select, label: "Timezone", options: timezone_options, required: true %>
+    <%= render "ui/form_field", form: form, field: :buffer_minutes, type: :select, label: "Buffer Between Meetings", options: buffer_options %>
+
+    <div class="mb-4">
+      <%= form.label :max_bookings_per_day, "Max Bookings Per Day", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.number_field :max_bookings_per_day, class: "block w-full rounded-lg border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6", min: 1, placeholder: "Unlimited" %>
+      <p class="mt-1 text-sm text-gray-500">Leave blank for unlimited.</p>
+    </div>
+
+    <div class="mb-4">
+      <%= form.label :max_future_days, "Max Future Days", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.number_field :max_future_days, class: "block w-full rounded-lg border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6", min: 1, required: true %>
+      <p class="mt-1 text-sm text-gray-500">How far in advance guests can book.</p>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Team Members", description: "Select team members for this schedule link." } do %>
+    <div class="space-y-2">
+      <div class="flex items-center gap-2 py-1">
+        <input type="checkbox" checked disabled class="rounded text-gray-900 focus:ring-gray-900">
+        <span class="text-sm text-gray-900"><%= Current.user.name %></span>
+        <span class="text-xs text-gray-500">(You — always included)</span>
+      </div>
+
+      <% users.each do |user| %>
+        <div class="flex items-center gap-2 py-1">
+          <%= check_box_tag "schedule_link[member_ids][]", user.id, schedule_link.members.include?(user), id: "member_#{user.id}", class: "rounded text-gray-900 focus:ring-gray-900" %>
+          <%= label_tag "member_#{user.id}", class: "text-sm text-gray-900" do %>
+            <%= user.name %> <span class="text-gray-500">(<%= user.email_address %>)</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="flex gap-3">
+    <%= render "ui/button", label: schedule_link.persisted? ? "Update Schedule Link" : "Create Schedule Link" %>
+    <%= render "ui/button", label: "Cancel", href: schedule_links_path, variant: :ghost %>
+  </div>
+<% end %>

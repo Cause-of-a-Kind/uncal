@@ -1,0 +1,38 @@
+<%# locals: (schedule_link:, window:, selected_user:) %>
+<%= turbo_frame_tag "window_form_day_#{window.day_of_week}" do %>
+  <%= form_with model: window,
+    url: schedule_link_availability_windows_path(schedule_link),
+    data: { turbo_stream: true },
+    class: "flex items-end gap-2 mt-2" do |form| %>
+
+    <%= form.hidden_field :day_of_week %>
+    <% if selected_user != Current.user %>
+      <%= form.hidden_field :user_id, value: selected_user.id %>
+    <% end %>
+
+    <div class="flex-1">
+      <label class="block text-xs font-medium text-gray-500 mb-1">Start</label>
+      <%= form.select :start_time, time_select_options,
+        { prompt: "Start" },
+        class: "block w-full rounded-lg border-0 py-1.5 px-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900" %>
+    </div>
+
+    <div class="flex-1">
+      <label class="block text-xs font-medium text-gray-500 mb-1">End</label>
+      <%= form.select :end_time, time_select_options,
+        { prompt: "End" },
+        class: "block w-full rounded-lg border-0 py-1.5 px-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900" %>
+    </div>
+
+    <%= form.submit "Add",
+      class: "inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900" %>
+  <% end %>
+
+  <% if window.errors.any? %>
+    <div class="mt-1">
+      <% window.errors.full_messages.each do |message| %>
+        <p class="text-sm text-red-600"><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

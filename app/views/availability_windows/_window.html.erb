@@ -1,0 +1,11 @@
+<%# locals: (window:, schedule_link:) %>
+<div id="<%= dom_id(window) %>" class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+  <span class="text-sm text-gray-900">
+    <%= format_window_time(window.start_time) %> - <%= format_window_time(window.end_time) %>
+  </span>
+  <%= button_to "Remove",
+    schedule_link_availability_window_path(schedule_link, window),
+    method: :delete,
+    class: "text-sm text-red-600 hover:text-red-800",
+    data: { turbo_method: :delete, turbo_confirm: "Remove this window?" } %>
+</div>

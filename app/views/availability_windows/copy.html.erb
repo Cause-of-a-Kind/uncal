@@ -1,0 +1,43 @@
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Copy Availability — <%= @schedule_link.name %></h1>
+  <div class="flex gap-2">
+    <%= render "ui/button", label: "Back", href: schedule_link_availability_windows_path(@schedule_link, user_id: @selected_user.id), variant: :ghost %>
+  </div>
+</div>
+
+<% if @other_links.any? %>
+  <%= render layout: "ui/card", locals: { title: "Copy from another schedule link" } do %>
+    <%= form_with url: copy_schedule_link_availability_windows_path(@schedule_link), method: :post, class: "space-y-4" do |form| %>
+      <% if @selected_user != Current.user %>
+        <%= form.hidden_field :user_id, value: @selected_user.id %>
+      <% end %>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Source schedule link</label>
+        <%= form.select :source_link_id,
+          @other_links.map { |l| [l.name, l.id] },
+          { prompt: "Select a schedule link..." },
+          class: "block w-full rounded-lg border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6",
+          required: true %>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Copy mode</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2">
+            <%= form.radio_button :mode, "replace", checked: true, class: "text-gray-900 focus:ring-gray-900" %>
+            <span class="text-sm text-gray-700">Replace existing — remove all current windows first</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <%= form.radio_button :mode, "merge", class: "text-gray-900 focus:ring-gray-900" %>
+            <span class="text-sm text-gray-700">Merge — keep existing windows, skip overlapping</span>
+          </label>
+        </div>
+      </div>
+
+      <%= render "ui/button", label: "Copy Availability", type: "submit" %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= render "ui/empty_state", title: "No other schedule links with availability windows found." %>
+<% end %>

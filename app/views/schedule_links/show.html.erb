@@ -1,0 +1,108 @@
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-900"><%= @schedule_link.name %></h1>
+  <div class="flex gap-2">
+    <%= render "ui/button", label: "Manage Availability", href: schedule_link_availability_windows_path(@schedule_link), variant: :primary %>
+    <%= render "ui/button", label: "Edit", href: edit_schedule_link_path(@schedule_link), variant: :secondary %>
+    <%= render "ui/button", label: "Back", href: schedule_links_path, variant: :ghost %>
+  </div>
+</div>
+
+<div class="space-y-6">
+  <%= render layout: "ui/card", locals: { title: "Public Booking URL" } do %>
+    <div class="flex items-center gap-3" data-controller="clipboard">
+      <code class="flex-1 bg-gray-50 rounded-lg px-4 py-2 text-sm text-gray-700 font-mono" data-clipboard-target="source">
+        <%= request.base_url %>/book/<%= @schedule_link.slug %>
+      </code>
+      <button type="button"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              data-action="clipboard#copy"
+              data-clipboard-target="button">
+        Copy
+      </button>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Meeting Details" } do %>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Meeting Name</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.meeting_name %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Duration</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.meeting_duration_minutes %> minutes</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Location Type</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.meeting_location_type.capitalize %></dd>
+      </div>
+      <% if @schedule_link.meeting_location_value.present? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Location</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.meeting_location_value %></dd>
+        </div>
+      <% end %>
+    </dl>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Scheduling Rules" } do %>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Timezone</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.timezone %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Buffer Between Meetings</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.buffer_minutes %> minutes</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Max Bookings Per Day</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.max_bookings_per_day || "Unlimited" %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Max Future Days</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.max_future_days %> days</dd>
+      </div>
+    </dl>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Team Members" } do %>
+    <ul class="divide-y divide-gray-200 -mx-6">
+      <% @schedule_link.members.each do |member| %>
+        <li class="flex items-center justify-between px-6 py-3">
+          <div>
+            <p class="text-sm font-medium text-gray-900"><%= member.name %></p>
+            <p class="text-sm text-gray-500"><%= member.email_address %></p>
+          </div>
+          <% if member == @schedule_link.created_by %>
+            <%= render "ui/badge", label: "Creator", color: :blue %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Availability", description: "Times shown in #{@schedule_link.timezone}" } do %>
+    <% if @windows_by_member.any? %>
+      <div class="space-y-6 -mx-6">
+        <% @windows_by_member.each do |member, windows| %>
+          <div class="px-6">
+            <h3 class="text-sm font-medium text-gray-900 mb-2"><%= member.name %></h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              <% windows.group_by(&:day_of_week).each do |day, day_windows| %>
+                <div>
+                  <p class="text-xs font-medium text-gray-500 mb-1"><%= day_name(day) %></p>
+                  <% day_windows.each do |window| %>
+                    <p class="text-sm text-gray-700"><%= format_window_time(window.start_time) %> - <%= format_window_time(window.end_time) %></p>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500">No availability windows set. <%= link_to "Set up availability", schedule_link_availability_windows_path(@schedule_link), class: "text-gray-900 font-medium hover:underline" %>.</p>
+    <% end %>
+  <% end %>
+</div>

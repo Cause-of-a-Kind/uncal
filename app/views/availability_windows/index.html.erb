@@ -1,0 +1,35 @@
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Availability — <%= @schedule_link.name %></h1>
+  <div class="flex gap-2">
+    <%= render "ui/button", label: "Copy from Link", href: copy_schedule_link_availability_windows_path(@schedule_link, user_id: @selected_user.id), variant: :secondary %>
+    <%= render "ui/button", label: "Back", href: schedule_link_path(@schedule_link), variant: :ghost %>
+  </div>
+</div>
+
+<% if @schedule_link.created_by == Current.user && @schedule_link.members.count > 1 %>
+  <div class="mb-6">
+    <label class="block text-sm font-medium text-gray-700 mb-2">Viewing availability for:</label>
+    <div class="flex gap-2">
+      <% @schedule_link.members.each do |member| %>
+        <% active = member == @selected_user %>
+        <%= link_to member.name,
+          schedule_link_availability_windows_path(@schedule_link, user_id: member.id),
+          class: "px-3 py-1.5 text-sm font-medium rounded-lg #{active ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'}" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<p class="text-sm text-gray-500 mb-4">
+  Times are in <strong><%= @schedule_link.timezone %></strong> timezone.
+</p>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+  <% (0..6).each do |day| %>
+    <%= render "availability_windows/day_column",
+      day_of_week: day,
+      windows: @windows_by_day[day] || [],
+      schedule_link: @schedule_link,
+      selected_user: @selected_user %>
+  <% end %>
+</div>

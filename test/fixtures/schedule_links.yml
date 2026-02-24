@@ -1,0 +1,26 @@
+one:
+  name: Team Standup
+  slug: abc12345
+  meeting_name: Daily Standup
+  meeting_duration_minutes: 30
+  meeting_location_type: link
+  meeting_location_value: https://zoom.us/j/123
+  timezone: America/New_York
+  buffer_minutes: 15
+  max_future_days: 30
+  status: active
+  created_by: one
+
+two:
+  name: Client Call
+  slug: def67890
+  meeting_name: Consultation
+  meeting_duration_minutes: 60
+  meeting_location_type: physical
+  meeting_location_value: 123 Main St
+  timezone: Etc/UTC
+  buffer_minutes: 0
+  max_bookings_per_day: 3
+  max_future_days: 60
+  status: active
+  created_by: two

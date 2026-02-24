@@ -9,6 +9,14 @@ Rails.application.routes.draw do
   resources :invitation_acceptances, only: %i[show update], param: :token
 
   resource :settings, only: %i[edit update]
+  resources :schedule_links do
+    resources :availability_windows, only: [ :index, :create, :destroy ] do
+      collection do
+        get :copy
+        post :copy, action: :perform_copy
+      end
+    end
+  end
 
   resource :google_calendar, only: [], controller: "google_calendar" do
     get :connect

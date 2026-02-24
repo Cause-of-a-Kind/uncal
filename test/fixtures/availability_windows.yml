@@ -1,0 +1,34 @@
+one_monday_morning:
+  schedule_link: one
+  user: one
+  day_of_week: 0
+  start_time: "09:00"
+  end_time: "12:00"
+
+one_monday_afternoon:
+  schedule_link: one
+  user: one
+  day_of_week: 0
+  start_time: "13:00"
+  end_time: "17:00"
+
+one_wednesday:
+  schedule_link: one
+  user: one
+  day_of_week: 2
+  start_time: "09:00"
+  end_time: "17:00"
+
+two_monday:
+  schedule_link: two
+  user: one
+  day_of_week: 0
+  start_time: "08:00"
+  end_time: "11:00"
+
+two_tuesday:
+  schedule_link: two
+  user: one
+  day_of_week: 1
+  start_time: "10:00"
+  end_time: "16:00"
