@@ -1,0 +1,70 @@
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center gap-3">
+    <h1 class="text-2xl font-bold text-gray-900"><%= @workflow.name %></h1>
+    <%= render "ui/badge", label: @workflow.state.capitalize, color: @workflow.active? ? :green : :gray %>
+  </div>
+  <div class="flex gap-2">
+    <%= render "ui/button", label: @workflow.active? ? "Deactivate" : "Activate", href: toggle_workflow_path(@workflow), method: :patch, variant: :secondary %>
+    <%= render "ui/button", label: "Edit", href: edit_workflow_path(@workflow), variant: :secondary %>
+    <%= render "ui/button", label: "Delete", href: workflow_path(@workflow), method: :delete, variant: :danger, data: { turbo_confirm: "Delete this workflow?" } %>
+    <%= render "ui/button", label: "Back", href: workflows_path, variant: :ghost %>
+  </div>
+</div>
+
+<div class="space-y-6">
+  <%= render layout: "ui/card", locals: { title: "Email Steps" } do %>
+    <div id="workflow_steps" class="flex flex-col gap-4">
+      <% @workflow.workflow_steps.each do |step| %>
+        <%= render "workflow_steps/step", step: step %>
+      <% end %>
+    </div>
+
+    <% if @workflow.workflow_steps.empty? %>
+      <p class="text-sm text-gray-500 mb-4">No email steps yet. Add one below.</p>
+    <% end %>
+
+    <div class="border-t border-gray-200 pt-4 mt-4">
+      <h3 class="text-sm font-medium text-gray-900 mb-3">Add Step</h3>
+      <div id="step_form">
+        <%= render "workflow_steps/form", workflow: @workflow, step: WorkflowStep.new %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui/card", locals: { title: "Variable Reference", description: "Use these in email subject and body." } do %>
+    <div class="grid grid-cols-2 gap-2 text-sm">
+      <code class="bg-gray-50 px-2 py-1 rounded">{{invitee_name}}</code>
+      <span class="text-gray-500">Booker's name</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{invitee_email}}</code>
+      <span class="text-gray-500">Booker's email</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{meeting_name}}</code>
+      <span class="text-gray-500">Meeting name</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{meeting_date}}</code>
+      <span class="text-gray-500">Meeting date</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{meeting_time}}</code>
+      <span class="text-gray-500">Meeting time</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{meeting_duration}}</code>
+      <span class="text-gray-500">Duration in minutes</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{meeting_location}}</code>
+      <span class="text-gray-500">Meeting location</span>
+      <code class="bg-gray-50 px-2 py-1 rounded">{{host_names}}</code>
+      <span class="text-gray-500">Host team member names</span>
+    </div>
+  <% end %>
+
+  <% if @workflow.schedule_links.any? %>
+    <%= render layout: "ui/card", locals: { title: "Assigned Schedule Links" } do %>
+      <ul class="divide-y divide-gray-200 -mx-6">
+        <% @workflow.schedule_links.each do |link| %>
+          <li class="flex items-center justify-between px-6 py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-900"><%= link.name %></p>
+              <p class="text-sm text-gray-500"><%= link.meeting_name %></p>
+            </div>
+            <%= link_to "View", schedule_link_path(link), class: "text-sm text-gray-600 hover:text-gray-900 font-medium" %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% end %>
+</div>

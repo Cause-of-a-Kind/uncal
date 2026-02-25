@@ -1,5 +1,6 @@
 class ScheduleLink < ApplicationRecord
   belongs_to :created_by, class_name: "User"
+  belongs_to :workflow, optional: true
   has_many :schedule_link_members, dependent: :destroy
   has_many :members, through: :schedule_link_members, source: :user
   has_many :availability_windows, dependent: :destroy

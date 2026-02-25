@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_25_153500) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_25_160002) do
   create_table "availability_windows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_of_week", null: false
@@ -95,9 +95,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_153500) do
     t.string "status", default: "active", null: false
     t.string "timezone", null: false
     t.datetime "updated_at", null: false
+    t.integer "workflow_id"
     t.index ["created_by_id"], name: "index_schedule_links_on_created_by_id"
     t.index ["slug"], name: "index_schedule_links_on_slug", unique: true
     t.index ["status"], name: "index_schedule_links_on_status"
+    t.index ["workflow_id"], name: "index_schedule_links_on_workflow_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -123,6 +125,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_153500) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  create_table "workflow_steps", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "email_body", null: false
+    t.string "email_subject", null: false
+    t.integer "position", default: 0, null: false
+    t.string "recipient_type", default: "invitee", null: false
+    t.string "timing_direction", null: false
+    t.integer "timing_minutes", null: false
+    t.datetime "updated_at", null: false
+    t.integer "workflow_id", null: false
+    t.index ["workflow_id", "position"], name: "index_workflow_steps_on_workflow_id_and_position"
+    t.index ["workflow_id"], name: "index_workflow_steps_on_workflow_id"
+  end
+
+  create_table "workflows", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.string "state", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "state"], name: "index_workflows_on_user_id_and_state"
+    t.index ["user_id"], name: "index_workflows_on_user_id"
+  end
+
   add_foreign_key "availability_windows", "schedule_links"
   add_foreign_key "availability_windows", "users"
   add_foreign_key "bookings", "contacts"
@@ -132,5 +158,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_153500) do
   add_foreign_key "schedule_link_members", "schedule_links"
   add_foreign_key "schedule_link_members", "users"
   add_foreign_key "schedule_links", "users", column: "created_by_id"
+  add_foreign_key "schedule_links", "workflows"
   add_foreign_key "sessions", "users"
+  add_foreign_key "workflow_steps", "workflows"
+  add_foreign_key "workflows", "users"
 end

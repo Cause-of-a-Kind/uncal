@@ -10,7 +10,7 @@
 | 4 | [Availability Windows](phases/04-availability-windows.md) | `[x] Complete` |
 | 5 | [Availability Calculation Engine](phases/05-availability-engine.md) | `[x] Complete` |
 | 6 | [Public Booking Page & Booking Creation](phases/06-public-booking.md) | `[x] Complete` |
-| 7 | [Email Workflows](phases/07-email-workflows.md) | `[ ] Pending` |
+| 7 | [Email Workflows](phases/07-email-workflows.md) | `[x] Complete` |
 | 8 | [Dashboard, Polish & Production Readiness](phases/08-dashboard-polish.md) | `[ ] Pending` |
 
 ## Architecture Decisions
@@ -37,18 +37,19 @@ User
 ├── has_many :schedule_links (through schedule_link_members)
 ├── has_many :created_schedule_links (as created_by)
 ├── has_many :contacts
-└── has_many :availability_windows
+├── has_many :availability_windows
+└── has_many :workflows
 
 Invitation
 └── belongs_to :invited_by (User)
 
 ScheduleLink
 ├── belongs_to :created_by (User)
+├── belongs_to :workflow (optional)
 ├── has_many :schedule_link_members
 ├── has_many :members (through schedule_link_members → User)
 ├── has_many :bookings
-├── has_many :availability_windows
-└── has_one :workflow
+└── has_many :availability_windows
 
 AvailabilityWindow
 ├── belongs_to :schedule_link
@@ -63,8 +64,9 @@ Contact
 └── has_many :bookings
 
 Workflow
-├── belongs_to :schedule_link
-└── has_many :workflow_steps (ordered by position)
+├── belongs_to :user
+├── has_many :workflow_steps (ordered by position)
+└── has_many :schedule_links
 
 WorkflowStep
 └── belongs_to :workflow
@@ -81,7 +83,7 @@ WorkflowStep
 | AvailabilityWindow | schedule_link_id, user_id, day_of_week (0-6), start_time, end_time |
 | Booking | schedule_link_id, contact_id, start_time (UTC), end_time (UTC), invitee_name, invitee_email, invitee_timezone, invitee_notes, status, google_event_id |
 | Contact | user_id, name, email, notes, last_booked_at, total_bookings_count |
-| Workflow | schedule_link_id, name, state |
+| Workflow | user_id, name, state |
 | WorkflowStep | workflow_id, timing_direction, timing_minutes, email_subject, email_body, recipient_type, position |
 
 ## Non-Functional Notes

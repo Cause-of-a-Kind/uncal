@@ -1,0 +1,9 @@
+one:
+  user: one
+  name: Booking Reminders
+  state: active
+
+inactive_one:
+  user: one
+  name: Old Workflow
+  state: inactive

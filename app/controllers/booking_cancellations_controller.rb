@@ -16,6 +16,9 @@ class BookingCancellationsController < ApplicationController
 
     @booking.update!(status: "cancelled")
 
+    # Cancel pending workflow emails
+    WorkflowCanceller.new(@booking).cancel_all
+
     # Remove Google Calendar event if present
     if @booking.google_event_id.present?
       @booking.schedule_link.members.select(&:google_calendar_connected?).each do |member|

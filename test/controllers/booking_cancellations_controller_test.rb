@@ -66,6 +66,13 @@ class BookingCancellationsControllerTest < ActionDispatch::IntegrationTest
     GoogleCalendarService.define_singleton_method(:new, original_gcal_new)
   end
 
+  test "cancellation invokes workflow canceller" do
+    # WorkflowCanceller should not raise during cancellation
+    post booking_cancellation_path(id: @booking.id, token: @token)
+    assert_redirected_to booking_cancellation_path(id: @booking.id, token: @token)
+    assert_equal "cancelled", @booking.reload.status
+  end
+
   test "nonexistent booking returns 404" do
     get booking_cancellation_path(id: 999999, token: @token)
     assert_response :not_found

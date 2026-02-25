@@ -21,6 +21,7 @@ class ScheduleLinksController < ApplicationController
   def new
     @schedule_link = ScheduleLink.new(timezone: Current.user.timezone)
     @users = User.where.not(id: Current.user.id)
+    @workflows = Current.user.workflows.active
   end
 
   def create
@@ -33,12 +34,14 @@ class ScheduleLinksController < ApplicationController
       redirect_to @schedule_link, notice: "Schedule link created."
     else
       @users = User.where.not(id: Current.user.id)
+      @workflows = Current.user.workflows.active
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
     @users = User.where.not(id: Current.user.id)
+    @workflows = Current.user.workflows.active
   end
 
   def update
@@ -47,6 +50,7 @@ class ScheduleLinksController < ApplicationController
       redirect_to @schedule_link, notice: "Schedule link updated."
     else
       @users = User.where.not(id: Current.user.id)
+      @workflows = Current.user.workflows.active
       render :edit, status: :unprocessable_entity
     end
   end
@@ -73,7 +77,7 @@ class ScheduleLinksController < ApplicationController
       :name, :meeting_name, :meeting_duration_minutes,
       :meeting_location_type, :meeting_location_value,
       :timezone, :buffer_minutes, :max_bookings_per_day,
-      :max_future_days
+      :max_future_days, :workflow_id
     )
   end
 

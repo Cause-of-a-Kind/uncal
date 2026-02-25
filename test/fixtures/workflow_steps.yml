@@ -1,0 +1,26 @@
+reminder_before:
+  workflow: one
+  timing_direction: before
+  timing_minutes: 60
+  email_subject: "Reminder: {{meeting_name}} in 1 hour"
+  email_body: "Hi {{invitee_name}}, your meeting is coming up soon."
+  recipient_type: invitee
+  position: 0
+
+followup_after:
+  workflow: one
+  timing_direction: after
+  timing_minutes: 1440
+  email_subject: "Thanks for meeting with us"
+  email_body: "Hi {{invitee_name}}, thanks for attending {{meeting_name}}."
+  recipient_type: invitee
+  position: 1
+
+host_reminder:
+  workflow: one
+  timing_direction: before
+  timing_minutes: 15
+  email_subject: "Upcoming meeting with {{invitee_name}}"
+  email_body: "You have a meeting with {{invitee_name}} in 15 minutes."
+  recipient_type: host
+  position: 2

@@ -9,6 +9,13 @@ Rails.application.routes.draw do
   resources :invitation_acceptances, only: %i[show update], param: :token
 
   resource :settings, only: %i[edit update]
+  resources :workflows do
+    member do
+      patch :toggle
+    end
+    resources :workflow_steps, only: [ :create, :destroy ]
+  end
+
   resources :schedule_links do
     resources :availability_windows, only: [ :index, :create, :destroy ] do
       collection do

@@ -1,0 +1,7 @@
+<%= turbo_stream.append "workflow_steps" do %>
+  <%= render "workflow_steps/step", step: @step %>
+<% end %>
+
+<%= turbo_stream.replace "step_form" do %>
+  <%= render "workflow_steps/form", workflow: @workflow, step: WorkflowStep.new %>
+<% end %>

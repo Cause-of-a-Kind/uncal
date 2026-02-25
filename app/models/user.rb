@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_many :created_schedule_links, class_name: "ScheduleLink", foreign_key: :created_by_id, dependent: :destroy
   has_many :availability_windows, dependent: :destroy
   has_many :contacts, dependent: :destroy
+  has_many :workflows, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

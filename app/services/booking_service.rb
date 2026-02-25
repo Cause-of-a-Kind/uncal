@@ -49,6 +49,9 @@ class BookingService
     # Send confirmation email
     BookingMailer.confirmation(booking).deliver_later
 
+    # Schedule workflow emails
+    WorkflowScheduler.new(booking).schedule_all
+
     Result.new("success?": true, booking: booking)
   rescue ActiveRecord::RecordNotUnique
     Result.new("success?": false, error: "This time slot has just been booked. Please choose another time.")

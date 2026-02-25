@@ -1,0 +1,15 @@
+<%# locals: (workflow:, step:) %>
+<%= form_with model: [workflow, step], id: "step_form", class: "space-y-4" do |form| %>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <%= render "ui/form_field", form: form, field: :timing_minutes, label: "Minutes", required: true, placeholder: "e.g. 60" %>
+    <%= render "ui/form_field", form: form, field: :timing_direction, type: :select, label: "When", options: [["Before meeting", "before"], ["After meeting", "after"]], required: true %>
+    <%= render "ui/form_field", form: form, field: :recipient_type, type: :select, label: "Send To", options: [["Invitee", "invitee"], ["Host", "host"], ["All", "all"]], required: true %>
+  </div>
+
+  <%= render "ui/form_field", form: form, field: :email_subject, label: "Subject", required: true, placeholder: "e.g. Reminder: {{meeting_name}}" %>
+  <%= render "ui/form_field", form: form, field: :email_body, type: :textarea, label: "Body", required: true, placeholder: "Hi {{invitee_name}}, ..." %>
+
+  <div>
+    <%= render "ui/button", label: "Add Step", size: :sm %>
+  </div>
+<% end %>

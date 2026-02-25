@@ -10,6 +10,7 @@ one:
   max_future_days: 30
   status: active
   created_by: one
+  workflow: one
 
 two:
   name: Client Call

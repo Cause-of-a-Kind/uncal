@@ -66,6 +66,20 @@
     </dl>
   <% end %>
 
+  <%= render layout: "ui/card", locals: { title: "Email Workflow" } do %>
+    <% if @schedule_link.workflow %>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-900"><%= @schedule_link.workflow.name %></span>
+          <%= render "ui/badge", label: @schedule_link.workflow.state.capitalize, color: @schedule_link.workflow.active? ? :green : :gray %>
+        </div>
+        <%= link_to "Manage Workflow", workflow_path(@schedule_link.workflow), class: "text-sm text-gray-600 hover:text-gray-900 font-medium" %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500">No workflow assigned. <%= link_to "Assign one", edit_schedule_link_path(@schedule_link), class: "text-gray-900 font-medium hover:underline" %>.</p>
+    <% end %>
+  <% end %>
+
   <%= render layout: "ui/card", locals: { title: "Team Members" } do %>
     <ul class="divide-y divide-gray-200 -mx-6">
       <% @schedule_link.members.each do |member| %>
