@@ -34,29 +34,23 @@ class AvailabilityCalculator
       combined = TimeSlotHelper.intersect_ranges(combined, slots)
     end
 
-    # Steps 6-8: Booking constraints (guarded — Booking model may not exist yet)
-    if @link.respond_to?(:bookings)
-      bookings = @link.bookings.where(
-        "start_time >= ? AND start_time < ?",
-        date_start_utc,
-        date_end_utc
-      )
+    # Steps 6-8: Booking constraints
+    bookings = @link.bookings.confirmed.where(
+      "start_time >= ? AND start_time < ?",
+      date_start_utc,
+      date_end_utc
+    )
 
-      if defined?(Booking) && Booking.column_names.include?("status")
-        bookings = bookings.where(status: "confirmed")
-      end
-
-      # Step 7: max_bookings_per_day check
-      if @link.max_bookings_per_day.present? && bookings.count >= @link.max_bookings_per_day
-        return []
-      end
-
-      # Step 8: Subtract bookings with buffer
-      booking_ranges = bookings.map do |b|
-        [ b.start_time, b.end_time + @link.buffer_minutes.minutes ]
-      end
-      combined = TimeSlotHelper.subtract_ranges(combined, booking_ranges)
+    # Step 7: max_bookings_per_day check
+    if @link.max_bookings_per_day.present? && bookings.count >= @link.max_bookings_per_day
+      return []
     end
+
+    # Step 8: Subtract bookings with buffer
+    booking_ranges = bookings.map do |b|
+      [ b.start_time, b.end_time + @link.buffer_minutes.minutes ]
+    end
+    combined = TimeSlotHelper.subtract_ranges(combined, booking_ranges)
 
     # Step 9: Split into slots
     duration = @link.meeting_duration_minutes
@@ -82,9 +76,14 @@ class AvailabilityCalculator
     return [] if windows.empty?
 
     # Step 4b: Convert window times to UTC ranges for the specific date
+    # Rails time columns are stored in UTC; convert back to the link's
+    # timezone to recover the intended local hour before re-parsing for
+    # the target date (which handles DST correctly).
     utc_ranges = windows.map do |window|
-      start_utc = @timezone.parse("#{@date} #{window.start_time.strftime('%H:%M')}").utc
-      end_utc = @timezone.parse("#{@date} #{window.end_time.strftime('%H:%M')}").utc
+      local_start = window.start_time.in_time_zone(@timezone).strftime('%H:%M')
+      local_end = window.end_time.in_time_zone(@timezone).strftime('%H:%M')
+      start_utc = @timezone.parse("#{@date} #{local_start}").utc
+      end_utc = @timezone.parse("#{@date} #{local_end}").utc
       [ start_utc, end_utc ]
     end
 

@@ -3,6 +3,7 @@ class ScheduleLink < ApplicationRecord
   has_many :schedule_link_members, dependent: :destroy
   has_many :members, through: :schedule_link_members, source: :user
   has_many :availability_windows, dependent: :destroy
+  has_many :bookings, dependent: :destroy
 
   before_validation :generate_slug, on: :create
 

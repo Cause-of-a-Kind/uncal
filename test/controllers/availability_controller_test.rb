@@ -3,6 +3,7 @@ require "test_helper"
 class AvailabilityControllerTest < ActionDispatch::IntegrationTest
   setup do
     @link = schedule_links(:one)  # slug: abc12345, America/New_York
+    @link.bookings.destroy_all
 
     # Stub GoogleCalendarService to return no busy times
     @original_gcal_new = GoogleCalendarService.method(:new)

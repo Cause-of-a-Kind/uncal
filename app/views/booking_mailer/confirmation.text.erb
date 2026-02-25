@@ -1,0 +1,14 @@
+Booking Confirmed
+
+Hi <%= @booking.invitee_name %>,
+
+Your meeting has been confirmed:
+
+Meeting: <%= @link.meeting_name %>
+Date: <%= @booking.start_time.in_time_zone(@timezone).strftime("%A, %B %-d, %Y") %>
+Time: <%= @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> - <%= @booking.end_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> (<%= @timezone.name %>)
+Duration: <%= @link.meeting_duration_minutes %> minutes
+<% if @link.meeting_location_value.present? %>Location: <%= @link.meeting_location_value %>
+<% end %>With: <%= @members.map(&:name).to_sentence %>
+
+Need to cancel? Visit: <%= @cancellation_url %>

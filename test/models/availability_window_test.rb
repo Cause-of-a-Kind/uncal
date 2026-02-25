@@ -91,27 +91,27 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   end
 
   test "rejects overlapping windows for same user, day, and schedule_link" do
-    # Fixture: one_monday_morning is 09:00-12:00 for user one on link one, day 0
+    # Fixture: one_monday_morning is 14:00-17:00 UTC (09:00-12:00 ET) for user one on link one, day 0
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
       user: users(:one),
       day_of_week: 0,
-      start_time: "10:00",
-      end_time: "14:00"
+      start_time: "15:00",
+      end_time: "19:00"
     )
     assert_not window.valid?
     assert_includes window.errors[:base], "overlaps with an existing availability window"
   end
 
   test "allows non-overlapping windows on same day" do
-    # Fixture: one_monday_morning is 09:00-12:00, one_monday_afternoon is 13:00-17:00
+    # Fixture: one_monday_morning is 14:00-17:00 UTC, one_monday_afternoon is 18:00-22:00 UTC
     # Add a gap window between them
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
       user: users(:one),
       day_of_week: 0,
-      start_time: "12:00",
-      end_time: "13:00"
+      start_time: "17:00",
+      end_time: "18:00"
     )
     assert window.valid?
   end

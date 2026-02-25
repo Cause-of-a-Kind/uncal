@@ -18,13 +18,23 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :admin do
+    resources :bookings, only: %i[index show]
+  end
+
   resource :google_calendar, only: [], controller: "google_calendar" do
     get :connect
     get :callback
     delete :disconnect
   end
 
+  get "book/:slug", to: "booking_pages#show", as: :booking_page
   get "book/:slug/availability", to: "availability#show", as: :booking_availability
+  post "book/:slug/bookings", to: "bookings#create", as: :bookings
+  get "book/:slug/bookings/:id/confirmation", to: "bookings#confirmation", as: :booking_confirmation
+
+  get "bookings/:id/cancel", to: "booking_cancellations#show", as: :booking_cancellation
+  post "bookings/:id/cancel", to: "booking_cancellations#update"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check

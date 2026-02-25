@@ -1,0 +1,78 @@
+<% content_for(:title) { @link.meeting_name } %>
+
+<div class="bg-white shadow rounded-lg overflow-hidden" data-controller="date-picker"
+     data-date-picker-slug-value="<%= @link.slug %>"
+     data-date-picker-max-future-days-value="<%= @link.max_future_days %>"
+     data-date-picker-duration-value="<%= @link.meeting_duration_minutes %>"
+     data-date-picker-link-timezone-value="<%= @link.timezone %>">
+
+  <%# Meeting info header %>
+  <div class="px-6 py-5 border-b border-gray-200">
+    <h1 class="text-2xl font-bold text-gray-900"><%= @link.meeting_name %></h1>
+    <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
+      <span><%= @link.meeting_duration_minutes %> minutes</span>
+      <span>
+        <% if @link.meeting_location_type == "link" %>
+          Video call
+        <% else %>
+          <%= @link.meeting_location_value %>
+        <% end %>
+      </span>
+    </div>
+    <% if @members.any? %>
+      <p class="mt-2 text-sm text-gray-500">
+        With <%= @members.map(&:name).to_sentence %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <%# Left: Calendar %>
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900" data-date-picker-target="monthTitle"></h2>
+          <div class="flex gap-1">
+            <button type="button" data-action="date-picker#prevMonth"
+                    class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100">
+              &larr;
+            </button>
+            <button type="button" data-action="date-picker#nextMonth"
+                    class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100">
+              &rarr;
+            </button>
+          </div>
+        </div>
+        <div data-date-picker-target="calendar" class="grid grid-cols-7 gap-1 text-center"></div>
+
+        <div class="mt-4">
+          <label for="timezone-select" class="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+          <select id="timezone-select" data-date-picker-target="timezone" data-action="date-picker#timezoneChanged"
+                  class="block w-full rounded-lg border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6">
+          </select>
+        </div>
+      </div>
+
+      <%# Right: Slots + Form %>
+      <div>
+        <div data-date-picker-target="slots" class="space-y-2">
+          <p class="text-sm text-gray-500">Select a date to see available times</p>
+        </div>
+
+        <div data-date-picker-target="bookingForm" class="hidden mt-6">
+          <%= form_with url: bookings_path(@link.slug), method: :post, class: "space-y-4" do |f| %>
+            <input type="hidden" name="start_time" data-date-picker-target="startTime">
+            <input type="hidden" name="end_time" data-date-picker-target="endTime">
+            <input type="hidden" name="timezone" data-date-picker-target="timezoneInput">
+
+            <%= render "ui/form_field", form: f, field: :invitee_name, label: "Your name", required: true %>
+            <%= render "ui/form_field", form: f, field: :invitee_email, label: "Your email", type: :email, required: true %>
+            <%= render "ui/form_field", form: f, field: :invitee_notes, label: "Notes (optional)", type: :textarea %>
+
+            <%= render "ui/button", label: "Confirm booking", variant: :primary, size: :lg %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

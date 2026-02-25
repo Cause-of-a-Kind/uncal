@@ -1,0 +1,12 @@
+one_alice:
+  user: one
+  name: Alice Visitor
+  email: alice@visitor.com
+  total_bookings_count: 1
+  last_booked_at: <%= 1.day.ago.utc.iso8601 %>
+
+two_bob:
+  user: two
+  name: Bob Guest
+  email: bob@guest.com
+  total_bookings_count: 0

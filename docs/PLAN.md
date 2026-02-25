@@ -9,7 +9,7 @@
 | 3 | [Schedule Links (Core)](phases/03-schedule-links.md) | `[x] Complete` |
 | 4 | [Availability Windows](phases/04-availability-windows.md) | `[x] Complete` |
 | 5 | [Availability Calculation Engine](phases/05-availability-engine.md) | `[x] Complete` |
-| 6 | [Public Booking Page & Booking Creation](phases/06-public-booking.md) | `[ ] Pending` |
+| 6 | [Public Booking Page & Booking Creation](phases/06-public-booking.md) | `[x] Complete` |
 | 7 | [Email Workflows](phases/07-email-workflows.md) | `[ ] Pending` |
 | 8 | [Dashboard, Polish & Production Readiness](phases/08-dashboard-polish.md) | `[ ] Pending` |
 

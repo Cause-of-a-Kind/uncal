@@ -1,0 +1,71 @@
+<%= link_to "&larr; Back to bookings".html_safe, admin_bookings_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+
+<div class="flex items-center justify-between mb-6 mt-2">
+  <h1 class="text-2xl font-bold text-gray-900">Booking Details</h1>
+  <%= render "ui/badge", label: @booking.status.capitalize, color: @booking.status == "confirmed" ? :green : :red %>
+</div>
+
+<%= render layout: "ui/card" do %>
+  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Invitee</dt>
+      <dd class="mt-1 text-sm text-gray-900"><%= @booking.invitee_name %></dd>
+      <dd class="text-sm text-gray-500"><%= @booking.invitee_email %></dd>
+    </div>
+
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Meeting</dt>
+      <dd class="mt-1 text-sm text-gray-900">
+        <%= link_to @link.meeting_name, schedule_link_path(@link), class: "text-gray-900 hover:underline" %>
+      </dd>
+    </div>
+
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Date & Time</dt>
+      <dd class="mt-1 text-sm text-gray-900">
+        <%= @booking.start_time.strftime("%A, %B %-d, %Y") %>
+      </dd>
+      <dd class="text-sm text-gray-500">
+        <%= @booking.start_time.strftime("%-I:%M %p") %> &ndash; <%= @booking.end_time.strftime("%-I:%M %p") %>
+        (<%= Time.zone.name %>)
+      </dd>
+    </div>
+
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Invitee Timezone</dt>
+      <dd class="mt-1 text-sm text-gray-900"><%= @booking.invitee_timezone %></dd>
+    </div>
+
+    <% if @link.meeting_location_value.present? %>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Location</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @link.meeting_location_value %></dd>
+      </div>
+    <% end %>
+
+    <div>
+      <dt class="text-sm font-medium text-gray-500">With</dt>
+      <dd class="mt-1 text-sm text-gray-900"><%= @link.members.map(&:name).to_sentence %></dd>
+    </div>
+
+    <% if @booking.invitee_notes.present? %>
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Notes</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @booking.invitee_notes %></dd>
+      </div>
+    <% end %>
+
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Booked at</dt>
+      <dd class="mt-1 text-sm text-gray-500"><%= @booking.created_at.strftime("%b %-d, %Y at %-I:%M %p") %></dd>
+    </div>
+
+    <% if @booking.google_event_id.present? %>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Google Calendar</dt>
+        <dd class="mt-1 text-sm text-gray-500">Event synced</dd>
+      </div>
+    <% end %>
+  </dl>
+<% end %>
+

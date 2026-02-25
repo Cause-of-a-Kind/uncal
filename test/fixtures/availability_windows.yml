@@ -1,23 +1,27 @@
+# Times stored in UTC (Rails time columns are timezone-aware).
+# Link "one" is America/New_York (EST = UTC-5).
+# Link "two" is Etc/UTC.
+
 one_monday_morning:
   schedule_link: one
   user: one
   day_of_week: 0
-  start_time: "09:00"
-  end_time: "12:00"
+  start_time: "14:00"
+  end_time: "17:00"
 
 one_monday_afternoon:
   schedule_link: one
   user: one
   day_of_week: 0
-  start_time: "13:00"
-  end_time: "17:00"
+  start_time: "18:00"
+  end_time: "22:00"
 
 one_wednesday:
   schedule_link: one
   user: one
   day_of_week: 2
-  start_time: "09:00"
-  end_time: "17:00"
+  start_time: "14:00"
+  end_time: "22:00"
 
 two_monday:
   schedule_link: two

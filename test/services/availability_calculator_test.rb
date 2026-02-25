@@ -130,6 +130,9 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     # So 09:00 ET = 14:00 UTC, 17:00 ET = 22:00 UTC
     date = Date.new(2026, 3, 4)
 
+    # Remove fixture bookings for a clean test
+    @link_one.bookings.destroy_all
+
     travel_to Time.utc(2026, 3, 3, 0, 0) do
       result = AvailabilityCalculator.new(@link_one, date).available_slots
 
@@ -141,8 +144,6 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
       assert_equal Time.utc(2026, 3, 4, 14, 0), first_slot
       # Last slot + duration should fit within 22:00 UTC (17:00 ET)
       assert last_slot + 30.minutes <= Time.utc(2026, 3, 4, 22, 0)
-      # But also account for buffer_minutes (15) subtraction from the end... actually buffer is for bookings
-      # The last valid slot start is when start + duration <= window end
     end
   end
 
@@ -194,13 +195,59 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     end
   end
 
-  test "works without Booking model — graceful respond_to guard" do
+  test "confirmed booking subtracts time from availability" do
     date = Date.new(2026, 3, 4) # Wednesday
 
     travel_to Time.utc(2026, 3, 3, 0, 0) do
-      # Should not raise even though Booking model doesn't exist yet
+      # Create a confirmed booking at 16:00-16:30 UTC (11:00-11:30 ET)
+      @link_one.bookings.create!(
+        start_time: Time.utc(2026, 3, 4, 16, 0),
+        end_time: Time.utc(2026, 3, 4, 16, 30),
+        invitee_name: "Test", invitee_email: "t@t.com", invitee_timezone: "Etc/UTC"
+      )
+
       result = AvailabilityCalculator.new(@link_one, date).available_slots
-      assert result.any?
+
+      # No slot should start at 16:00 UTC (booked) or during buffer (16:30-16:45)
+      result.each do |slot|
+        refute slot[:start_time] >= Time.utc(2026, 3, 4, 16, 0) && slot[:start_time] < Time.utc(2026, 3, 4, 16, 45),
+          "Slot #{slot[:start_time]} should be blocked by booking + buffer"
+      end
+    end
+  end
+
+  test "cancelled booking does not subtract time" do
+    date = Date.new(2026, 3, 4) # Wednesday
+
+    travel_to Time.utc(2026, 3, 3, 0, 0) do
+      # The cancelled_one fixture is at 15:00-15:30 UTC on link_one
+      slots_without = AvailabilityCalculator.new(@link_one, date).available_slots
+      slot_at_15 = slots_without.find { |s| s[:start_time] == Time.utc(2026, 3, 4, 15, 0) }
+      assert slot_at_15.present?, "Cancelled booking should not block the 15:00 slot"
+    end
+  end
+
+  test "max_bookings_per_day returns empty at limit" do
+    # link_two has max_bookings_per_day: 3
+    # Give user_two a matching window
+    AvailabilityWindow.create!(
+      schedule_link: @link_two, user: @user_two, day_of_week: 0,
+      start_time: "08:00", end_time: "17:00"
+    )
+
+    date = Date.new(2026, 3, 2) # Monday
+
+    travel_to Time.utc(2026, 3, 1, 0, 0) do
+      3.times do |i|
+        @link_two.bookings.create!(
+          start_time: Time.utc(2026, 3, 2, 8 + i, 0),
+          end_time: Time.utc(2026, 3, 2, 9 + i, 0),
+          invitee_name: "Test #{i}", invitee_email: "t#{i}@t.com", invitee_timezone: "Etc/UTC"
+        )
+      end
+
+      result = AvailabilityCalculator.new(@link_two, date).available_slots
+      assert_empty result, "Should return no slots when max_bookings_per_day reached"
     end
   end
 
@@ -228,13 +275,13 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
   test "DST spring-forward: window contracts by 1hr in UTC" do
     # March 8, 2026 is when US springs forward (EST→EDT)
     # 2026-03-08 is a Sunday — day_of_week 6 in our convention ((0+6)%7 = 6)
-    # Create a Sunday window for testing
+    # Create a Sunday window for testing (09:00-17:00 ET = 14:00-22:00 UTC)
     AvailabilityWindow.create!(
       schedule_link: @link_one,
       user: @user_one,
       day_of_week: 6,  # Sunday
-      start_time: "09:00",
-      end_time: "17:00"
+      start_time: "14:00",
+      end_time: "22:00"
     )
 
     # On March 7 (before DST): 09:00 EST = 14:00 UTC, 17:00 EST = 22:00 UTC (8hr window)
@@ -252,13 +299,13 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
   end
 
   test "late-night window where UTC conversion crosses date boundary" do
-    # Create a window at 22:00-23:00 ET for Wednesday
+    # Create a window at 22:00-23:00 ET for Wednesday (= 03:00-04:00 UTC next day)
     AvailabilityWindow.create!(
       schedule_link: @link_one,
       user: @user_one,
       day_of_week: 2,  # Wednesday
-      start_time: "22:00",
-      end_time: "23:00"
+      start_time: "03:00",
+      end_time: "04:00"
     )
 
     # 22:00 EST on March 4 = 03:00 UTC on March 5

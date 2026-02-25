@@ -138,10 +138,10 @@ class AvailabilityWindowsControllerTest < ActionDispatch::IntegrationTest
   test "copy merge mode adds windows without duplicating overlapping" do
     link_two = schedule_links(:two)
 
-    # Link one has windows on day 0 (09-12, 13-17) and day 2 (09-17)
-    # Link two has windows on day 0 (08-11) and day 1 (10-16)
-    # Day 0 from link two (08-11) overlaps with link one day 0 (09-12), so it should be skipped
-    # Day 1 from link two (10-16) does not overlap with anything on link one, so it should be added
+    # Link one has windows on day 0 (14:00-17:00, 18:00-22:00 UTC) and day 2 (14:00-22:00 UTC)
+    # Link two has windows on day 0 (08:00-11:00 UTC) and day 1 (10:00-16:00 UTC)
+    # Day 0 from link two (08:00-11:00) does not overlap with link one day 0 in UTC, so it is copied
+    # Day 1 from link two (10:00-16:00) does not overlap with anything on link one, so it is copied
 
     initial_count = @link.availability_windows.where(user: @user).count
     assert_equal 3, initial_count
@@ -153,8 +153,8 @@ class AvailabilityWindowsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to schedule_link_availability_windows_path(@link, user_id: @user.id)
 
-    # Should have 3 original + 1 new (day 1 from link two), day 0 skipped due to overlap
-    assert_equal 4, @link.availability_windows.where(user: @user).count
+    # Should have 3 original + 2 new (both day 0 and day 1 from link two)
+    assert_equal 5, @link.availability_windows.where(user: @user).count
   end
 
   test "cannot copy from a link user is not a member of" do

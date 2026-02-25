@@ -1,0 +1,42 @@
+<h1>Booking Confirmed</h1>
+
+<p>Hi <%= @booking.invitee_name %>,</p>
+
+<p>Your meeting has been confirmed:</p>
+
+<table>
+  <tr>
+    <td><strong>Meeting:</strong></td>
+    <td><%= @link.meeting_name %></td>
+  </tr>
+  <tr>
+    <td><strong>Date:</strong></td>
+    <td><%= @booking.start_time.in_time_zone(@timezone).strftime("%A, %B %-d, %Y") %></td>
+  </tr>
+  <tr>
+    <td><strong>Time:</strong></td>
+    <td>
+      <%= @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> &ndash;
+      <%= @booking.end_time.in_time_zone(@timezone).strftime("%-I:%M %p") %>
+      (<%= @timezone.name %>)
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Duration:</strong></td>
+    <td><%= @link.meeting_duration_minutes %> minutes</td>
+  </tr>
+  <% if @link.meeting_location_value.present? %>
+    <tr>
+      <td><strong>Location:</strong></td>
+      <td><%= @link.meeting_location_value %></td>
+    </tr>
+  <% end %>
+  <tr>
+    <td><strong>With:</strong></td>
+    <td><%= @members.map(&:name).to_sentence %></td>
+  </tr>
+</table>
+
+<p>
+  Need to cancel? <%= link_to "Cancel this booking", @cancellation_url %>
+</p>

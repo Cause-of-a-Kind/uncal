@@ -64,6 +64,16 @@ class GoogleCalendarService
     raise ApiError, "Failed to create event: #{e.message}"
   end
 
+  def delete_event(event_id)
+    ensure_connected!
+    refresh_token_if_needed!
+    client.delete_event("primary", event_id)
+  rescue NotConnectedError, TokenRevokedError
+    raise
+  rescue => e
+    Rails.logger.error "Failed to delete GCal event: #{e.message}"
+  end
+
   private
 
   def ensure_connected!

@@ -1,0 +1,18 @@
+confirmed_one:
+  schedule_link: one
+  contact: one_alice
+  start_time: <%= Time.utc(2026, 3, 4, 14, 0).iso8601 %>
+  end_time: <%= Time.utc(2026, 3, 4, 14, 30).iso8601 %>
+  invitee_name: Alice Visitor
+  invitee_email: alice@visitor.com
+  invitee_timezone: America/New_York
+  status: confirmed
+
+cancelled_one:
+  schedule_link: one
+  start_time: <%= Time.utc(2026, 3, 4, 15, 0).iso8601 %>
+  end_time: <%= Time.utc(2026, 3, 4, 15, 30).iso8601 %>
+  invitee_name: Cancelled User
+  invitee_email: cancelled@example.com
+  invitee_timezone: America/New_York
+  status: cancelled

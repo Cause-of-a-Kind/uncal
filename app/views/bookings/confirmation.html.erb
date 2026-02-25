@@ -1,0 +1,50 @@
+<% content_for(:title) { "Booking Confirmed" } %>
+
+<div class="bg-white shadow rounded-lg overflow-hidden">
+  <div class="px-6 py-8 text-center">
+    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+      <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+    </div>
+    <h1 class="mt-4 text-2xl font-bold text-gray-900">Booking Confirmed</h1>
+    <p class="mt-2 text-sm text-gray-600">A confirmation email has been sent to <strong><%= @booking.invitee_email %></strong></p>
+  </div>
+
+  <div class="border-t border-gray-200 px-6 py-5">
+    <dl class="space-y-4">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Meeting</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @link.meeting_name %></dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Date & Time</dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <%= @booking.start_time.in_time_zone(@timezone).strftime("%A, %B %-d, %Y") %>
+          <br>
+          <%= @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> &ndash;
+          <%= @booking.end_time.in_time_zone(@timezone).strftime("%-I:%M %p") %>
+          (<%= @timezone.name %>)
+        </dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Duration</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @link.meeting_duration_minutes %> minutes</dd>
+      </div>
+
+      <% if @link.meeting_location_value.present? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Location</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @link.meeting_location_value %></dd>
+        </div>
+      <% end %>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">With</dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @link.members.map(&:name).to_sentence %></dd>
+      </div>
+    </dl>
+  </div>
+</div>

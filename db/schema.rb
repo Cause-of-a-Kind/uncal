@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_24_163913) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_25_153500) do
   create_table "availability_windows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_of_week", null: false
@@ -22,6 +22,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_163913) do
     t.index ["schedule_link_id", "user_id", "day_of_week"], name: "idx_availability_windows_link_user_day"
     t.index ["schedule_link_id"], name: "index_availability_windows_on_schedule_link_id"
     t.index ["user_id"], name: "index_availability_windows_on_user_id"
+  end
+
+  create_table "bookings", force: :cascade do |t|
+    t.integer "contact_id"
+    t.datetime "created_at", null: false
+    t.datetime "end_time", null: false
+    t.string "google_event_id"
+    t.string "invitee_email", null: false
+    t.string "invitee_name", null: false
+    t.text "invitee_notes"
+    t.string "invitee_timezone", null: false
+    t.integer "schedule_link_id", null: false
+    t.datetime "start_time", null: false
+    t.string "status", default: "confirmed", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_bookings_on_contact_id"
+    t.index ["schedule_link_id", "start_time", "status"], name: "index_bookings_on_schedule_link_id_and_start_time_and_status", unique: true
+    t.index ["schedule_link_id", "start_time"], name: "index_bookings_on_schedule_link_id_and_start_time"
+    t.index ["schedule_link_id"], name: "index_bookings_on_schedule_link_id"
+  end
+
+  create_table "contacts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.datetime "last_booked_at"
+    t.string "name", null: false
+    t.text "notes"
+    t.integer "total_bookings_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "email"], name: "index_contacts_on_user_id_and_email", unique: true
+    t.index ["user_id", "last_booked_at"], name: "index_contacts_on_user_id_and_last_booked_at"
+    t.index ["user_id"], name: "index_contacts_on_user_id"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -92,6 +125,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_24_163913) do
 
   add_foreign_key "availability_windows", "schedule_links"
   add_foreign_key "availability_windows", "users"
+  add_foreign_key "bookings", "contacts"
+  add_foreign_key "bookings", "schedule_links"
+  add_foreign_key "contacts", "users"
   add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "schedule_link_members", "schedule_links"
   add_foreign_key "schedule_link_members", "users"
