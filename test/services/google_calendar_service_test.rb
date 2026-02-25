@@ -136,6 +136,64 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
     end
   end
 
+  # Cycle 5: Caching
+
+  test "busy_times caches results with 5-minute TTL" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    api_call_count = 0
+    with_mock_calendar_service_counting(:freebusy, [], -> { api_call_count += 1 }) do
+      @service.busy_times(Date.new(2026, 3, 1), Date.new(2026, 3, 1))
+      assert_equal 1, api_call_count
+    end
+  ensure
+    Rails.cache = original_cache
+  end
+
+  test "second call uses cache and skips API call" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    api_call_count = 0
+    with_mock_calendar_service_counting(:freebusy, [], -> { api_call_count += 1 }) do
+      @service.busy_times(Date.new(2026, 3, 1), Date.new(2026, 3, 1))
+      @service.busy_times(Date.new(2026, 3, 1), Date.new(2026, 3, 1))
+      assert_equal 1, api_call_count, "Second call should use cache"
+    end
+  ensure
+    Rails.cache = original_cache
+  end
+
+  test "cache miss triggers API call" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    api_call_count = 0
+    with_mock_calendar_service_counting(:freebusy, [], -> { api_call_count += 1 }) do
+      @service.busy_times(Date.new(2026, 3, 1), Date.new(2026, 3, 1))
+      @service.busy_times(Date.new(2026, 3, 2), Date.new(2026, 3, 2))
+      assert_equal 2, api_call_count, "Different dates should trigger separate API calls"
+    end
+  ensure
+    Rails.cache = original_cache
+  end
+
+  test "invalidate_busy_cache forces fresh fetch" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    api_call_count = 0
+    with_mock_calendar_service_counting(:freebusy, [], -> { api_call_count += 1 }) do
+      @service.busy_times(Date.new(2026, 3, 1), Date.new(2026, 3, 1))
+      GoogleCalendarService.invalidate_busy_cache(@user, Date.new(2026, 3, 1))
+      @service.busy_times(Date.new(2026, 3, 1), Date.new(2026, 3, 1))
+      assert_equal 2, api_call_count, "Should call API again after cache invalidation"
+    end
+  ensure
+    Rails.cache = original_cache
+  end
+
   test "handles refresh failure by disconnecting user" do
     @user.update!(google_calendar_token_expires_at: 5.minutes.ago)
 
@@ -173,6 +231,31 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
       service_mock.define_singleton_method(:query_freebusy) { |_req|
         raise Google::Apis::ServerError, "Internal Server Error"
       }
+    end
+
+    original_new = Google::Apis::CalendarV3::CalendarService.method(:new)
+    Google::Apis::CalendarV3::CalendarService.define_singleton_method(:new) { |*_args| service_mock }
+    yield
+  ensure
+    Google::Apis::CalendarV3::CalendarService.define_singleton_method(:new, original_new)
+  end
+
+  def with_mock_calendar_service_counting(mode, data, counter)
+    service_mock = Object.new
+    service_mock.define_singleton_method(:authorization=) { |_auth| }
+
+    case mode
+    when :freebusy
+      calendars = { "primary" => Google::Apis::CalendarV3::FreeBusyCalendar.new(
+        busy: data.map { |bp|
+          Google::Apis::CalendarV3::TimePeriod.new(start: bp[:start], end: bp[:end])
+        }
+      ) }
+      freebusy_response = Google::Apis::CalendarV3::FreeBusyResponse.new(calendars: calendars)
+      service_mock.define_singleton_method(:query_freebusy) do |_req|
+        counter.call
+        freebusy_response
+      end
     end
 
     original_new = Google::Apis::CalendarV3::CalendarService.method(:new)

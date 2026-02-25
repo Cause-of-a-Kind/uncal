@@ -12,28 +12,35 @@ class GoogleCalendarService
   def busy_times(start_date, end_date)
     ensure_connected!
 
-    refresh_token_if_needed!
+    cache_key = "gcal_busy/#{@user.id}/#{start_date}/#{end_date}"
+    Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+      refresh_token_if_needed!
 
-    request = Google::Apis::CalendarV3::FreeBusyRequest.new(
-      time_min: start_date.beginning_of_day.utc.iso8601,
-      time_max: end_date.end_of_day.utc.iso8601,
-      items: [ { id: "primary" } ]
-    )
+      request = Google::Apis::CalendarV3::FreeBusyRequest.new(
+        time_min: start_date.beginning_of_day.utc.iso8601,
+        time_max: end_date.end_of_day.utc.iso8601,
+        items: [ { id: "primary" } ]
+      )
 
-    response = client.query_freebusy(request)
-    calendar = response.calendars["primary"]
+      response = client.query_freebusy(request)
+      calendar = response.calendars["primary"]
 
-    (calendar&.busy || []).map do |period|
-      {
-        start: Time.parse(period.start.to_s).utc,
-        end: Time.parse(period.end.to_s).utc
-      }
+      (calendar&.busy || []).map do |period|
+        {
+          start: Time.parse(period.start.to_s).utc,
+          end: Time.parse(period.end.to_s).utc
+        }
+      end
     end
   rescue NotConnectedError, TokenRevokedError
     raise
   rescue => e
     Rails.logger.error "Google Calendar API error: #{e.message}"
     []
+  end
+
+  def self.invalidate_busy_cache(user, date)
+    Rails.cache.delete("gcal_busy/#{user.id}/#{date}/#{date}")
   end
 
   def create_event(title:, start_time:, end_time:, description: nil, location: nil)

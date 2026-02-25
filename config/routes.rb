@@ -24,6 +24,8 @@ Rails.application.routes.draw do
     delete :disconnect
   end
 
+  get "book/:slug/availability", to: "availability#show", as: :booking_availability
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 end
