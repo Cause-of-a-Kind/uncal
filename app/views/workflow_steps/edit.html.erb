@@ -1,0 +1,19 @@
+<%= turbo_frame_tag dom_id(@step) do %>
+  <div class="p-4 bg-white border border-gray-300 rounded-lg">
+    <%= form_with model: [@workflow, @step], class: "space-y-4" do |form| %>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <%= render "ui/form_field", form: form, field: :timing_minutes, label: "Minutes", required: true, placeholder: "e.g. 60" %>
+        <%= render "ui/form_field", form: form, field: :timing_direction, type: :select, label: "When", options: [["Before meeting", "before"], ["After meeting", "after"]], required: true %>
+        <%= render "ui/form_field", form: form, field: :recipient_type, type: :select, label: "Send To", options: [["Invitee", "invitee"], ["Host", "host"], ["All", "all"]], required: true %>
+      </div>
+
+      <%= render "ui/form_field", form: form, field: :email_subject, label: "Subject", required: true, placeholder: "e.g. Reminder: {{meeting_name}}" %>
+      <%= render "ui/form_field", form: form, field: :email_body, type: :textarea, label: "Body", required: true, placeholder: "Hi {{invitee_name}}, ...", hint: "Supports Markdown: **bold**, *italic*, [link](url), lists, and headings." %>
+
+      <div class="flex items-center gap-2">
+        <%= render "ui/button", label: "Save", size: :sm %>
+        <%= link_to "Cancel", workflow_path(@workflow), class: "text-sm text-gray-600 hover:text-gray-900 font-medium" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

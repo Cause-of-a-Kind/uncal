@@ -52,4 +52,23 @@ class WorkflowEmailJobTest < ActiveSupport::TestCase
     assert_includes email.subject, "Daily Standup"
     assert_includes email.body.encoded, "Alice Visitor"
   end
+
+  test "renders markdown in HTML email part" do
+    @step.update!(email_body: "Hi **{{invitee_name}}**, your meeting is coming up.")
+    WorkflowEmailJob.perform_now(@step, @booking)
+    email = ActionMailer::Base.deliveries.last
+    html = email.html_part.body.to_s
+    assert_includes html, "<strong>"
+    assert_includes html, "Alice Visitor"
+    refute_includes html, "**"
+  end
+
+  test "text email part preserves markdown syntax" do
+    @step.update!(email_body: "Hi **{{invitee_name}}**, click [here](https://example.com)")
+    WorkflowEmailJob.perform_now(@step, @booking)
+    email = ActionMailer::Base.deliveries.last
+    text = email.text_part.body.to_s
+    assert_includes text, "Alice Visitor"
+    assert_includes text, "**"
+  end
 end

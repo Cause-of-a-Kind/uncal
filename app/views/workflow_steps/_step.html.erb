@@ -1,14 +1,18 @@
 <%# locals: (step:) %>
 <%= turbo_frame_tag dom_id(step) do %>
-  <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
-    <div class="flex-1">
-      <div class="flex items-center gap-2 mb-1">
-        <%= render "ui/badge", label: "#{step.timing_minutes} min #{step.timing_direction}", color: step.timing_direction == "before" ? :yellow : :blue %>
-        <%= render "ui/badge", label: step.recipient_type.capitalize, color: step.recipient_type == "host" ? :blue : :gray %>
-      </div>
+  <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+    <div class="flex items-center gap-2 flex-wrap">
+      <%= render "ui/badge", label: "#{step.timing_minutes} min #{step.timing_direction}", color: step.timing_direction == "before" ? :yellow : :blue %>
+      <%= render "ui/badge", label: step.recipient_type.capitalize, color: step.recipient_type == "host" ? :blue : :gray %>
+    </div>
+    <div>
       <p class="text-sm font-medium text-gray-900"><%= step.email_subject %></p>
       <p class="text-sm text-gray-500 mt-1 line-clamp-2"><%= truncate(step.email_body, length: 120) %></p>
     </div>
-    <%= button_to "Remove", workflow_workflow_step_path(step.workflow, step), method: :delete, class: "text-sm text-red-600 hover:text-red-800 font-medium ml-4", form: { data: { turbo_confirm: "Remove this step?" } } %>
+    <div class="flex items-center gap-3 border-t border-gray-200 pt-3">
+      <%= link_to "Edit", edit_workflow_workflow_step_path(step.workflow, step), class: "text-sm text-gray-600 hover:text-gray-900 font-medium" %>
+      <%= link_to "Preview", workflow_workflow_step_path(step.workflow, step), data: { turbo_frame: "modal" }, class: "text-sm text-gray-600 hover:text-gray-900 font-medium" %>
+      <%= button_to "Remove", workflow_workflow_step_path(step.workflow, step), method: :delete, class: "text-sm text-red-600 hover:text-red-800 font-medium", form: { data: { turbo_confirm: "Remove this step?" } } %>
+    </div>
   </div>
 <% end %>

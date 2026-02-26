@@ -1,0 +1,14 @@
+<%= turbo_frame_tag "modal" do %>
+  <%= render layout: "ui/modal", locals: { title: "Email Preview" } do %>
+    <div class="space-y-4">
+      <div>
+        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Subject</span>
+        <p class="text-sm font-semibold text-gray-900 mt-1"><%= @preview_subject %></p>
+      </div>
+      <hr class="border-gray-200">
+      <div class="email-preview-body">
+        <%= @preview_body %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -7,7 +7,7 @@
   </div>
 
   <%= render "ui/form_field", form: form, field: :email_subject, label: "Subject", required: true, placeholder: "e.g. Reminder: {{meeting_name}}" %>
-  <%= render "ui/form_field", form: form, field: :email_body, type: :textarea, label: "Body", required: true, placeholder: "Hi {{invitee_name}}, ..." %>
+  <%= render "ui/form_field", form: form, field: :email_body, type: :textarea, label: "Body", required: true, placeholder: "Hi {{invitee_name}}, ...", hint: "Supports Markdown: **bold**, *italic*, [link](url), lists, and headings." %>
 
   <div>
     <%= render "ui/button", label: "Add Step", size: :sm %>

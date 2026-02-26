@@ -6,7 +6,10 @@ class WorkflowMailer < ApplicationMailer
 
     interpolator = WorkflowInterpolator.new(booking)
     @subject = interpolator.interpolate(step.email_subject)
-    @body = interpolator.interpolate(step.email_body)
+    interpolated_body = interpolator.interpolate(step.email_body)
+    renderer = MarkdownRenderer.new
+    @html_body = renderer.to_html(interpolated_body)
+    @text_body = renderer.to_text(interpolated_body)
 
     recipients = resolve_recipients(step, booking)
     return if recipients.empty?

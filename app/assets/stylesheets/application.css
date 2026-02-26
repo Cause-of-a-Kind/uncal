@@ -8,3 +8,81 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Email preview body — mirrors mailer layout styles so the preview
+   matches the actual email rendering despite Tailwind's CSS reset. */
+.email-preview-body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.email-preview-body p {
+  margin: 0 0 1em 0;
+}
+
+.email-preview-body ul,
+.email-preview-body ol {
+  margin: 0 0 1em 0;
+  padding-left: 1.5em;
+}
+
+.email-preview-body ul {
+  list-style-type: disc;
+}
+
+.email-preview-body ol {
+  list-style-type: decimal;
+}
+
+.email-preview-body li {
+  margin-bottom: 0.25em;
+}
+
+.email-preview-body a {
+  color: #111827;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.email-preview-body strong {
+  font-weight: 600;
+}
+
+.email-preview-body h1,
+.email-preview-body h2,
+.email-preview-body h3 {
+  color: #111827;
+  font-weight: 600;
+  margin: 0 0 0.5em 0;
+}
+
+.email-preview-body h1 { font-size: 1.25rem; }
+.email-preview-body h2 { font-size: 1.125rem; }
+.email-preview-body h3 { font-size: 1rem; }
+
+.email-preview-body blockquote {
+  margin: 0 0 1em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.email-preview-body hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.5em 0;
+}
+
+.email-preview-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.email-preview-body td,
+.email-preview-body th {
+  padding: 0.5em 0.75em;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: left;
+}

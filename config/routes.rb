@@ -13,7 +13,7 @@ Rails.application.routes.draw do
     member do
       patch :toggle
     end
-    resources :workflow_steps, only: [ :create, :destroy ]
+    resources :workflow_steps, only: [ :create, :show, :edit, :update, :destroy ]
   end
 
   resources :schedule_links do
@@ -53,4 +53,6 @@ Rails.application.routes.draw do
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
+
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if defined?(LetterOpenerWeb)
 end
