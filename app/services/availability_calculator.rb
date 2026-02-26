@@ -20,21 +20,25 @@ class AvailabilityCalculator
     # Step 3: Reject beyond max_future_days
     return [] if @date > today_in_tz + @link.max_future_days
 
-    # Step 4: Per member — get free slots
+    # Step 4: Get link-level windows and convert to UTC ranges
+    link_utc_ranges = compute_link_utc_ranges(day_of_week)
+    return [] if link_utc_ranges.empty?
+
+    # Step 5: Per member — subtract Google Calendar busy times from link windows
     members = @link.members.to_a
     return [] if members.empty?
 
     member_free_slots = members.map do |member|
-      compute_member_free_slots(member, day_of_week)
+      compute_member_free_slots(member, link_utc_ranges)
     end
 
-    # Step 5: Intersect all members' free slots
+    # Step 6: Intersect all members' free slots
     combined = member_free_slots.first
     member_free_slots[1..].each do |slots|
       combined = TimeSlotHelper.intersect_ranges(combined, slots)
     end
 
-    # Steps 6-8: Booking constraints
+    # Steps 7-8: Booking constraints
     bookings = @link.bookings.confirmed.where(
       "start_time >= ? AND start_time < ?",
       date_start_utc,
@@ -67,31 +71,25 @@ class AvailabilityCalculator
 
   private
 
-  def compute_member_free_slots(member, day_of_week)
-    # Step 4a: Get windows for this day
+  def compute_link_utc_ranges(day_of_week)
     windows = @link.availability_windows
-      .where(user: member, day_of_week: day_of_week)
+      .where(day_of_week: day_of_week)
       .order(:start_time)
 
     return [] if windows.empty?
 
-    # Step 4b: Convert window times to UTC ranges for the specific date
-    # Rails time columns are stored in UTC; convert back to the link's
-    # timezone to recover the intended local hour before re-parsing for
-    # the target date (which handles DST correctly).
-    utc_ranges = windows.map do |window|
+    windows.map do |window|
       local_start = window.start_time.in_time_zone(@timezone).strftime('%H:%M')
       local_end = window.end_time.in_time_zone(@timezone).strftime('%H:%M')
       start_utc = @timezone.parse("#{@date} #{local_start}").utc
       end_utc = @timezone.parse("#{@date} #{local_end}").utc
       [ start_utc, end_utc ]
     end
+  end
 
-    # Step 4c: Fetch Google Calendar busy times (if connected)
+  def compute_member_free_slots(member, link_utc_ranges)
     busy_ranges = fetch_busy_times(member)
-
-    # Step 4d: Subtract busy times from availability
-    TimeSlotHelper.subtract_ranges(utc_ranges, busy_ranges)
+    TimeSlotHelper.subtract_ranges(link_utc_ranges, busy_ranges)
   end
 
   def fetch_busy_times(member)

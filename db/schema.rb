@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_25_160002) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_26_204440) do
   create_table "availability_windows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_of_week", null: false
@@ -18,10 +18,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_160002) do
     t.integer "schedule_link_id", null: false
     t.time "start_time", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["schedule_link_id", "user_id", "day_of_week"], name: "idx_availability_windows_link_user_day"
+    t.index ["schedule_link_id", "day_of_week"], name: "idx_availability_windows_link_day"
     t.index ["schedule_link_id"], name: "index_availability_windows_on_schedule_link_id"
-    t.index ["user_id"], name: "index_availability_windows_on_user_id"
   end
 
   create_table "bookings", force: :cascade do |t|
@@ -119,6 +117,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_160002) do
     t.string "google_calendar_token"
     t.datetime "google_calendar_token_expires_at"
     t.string "name", null: false
+    t.boolean "owner", default: false, null: false
     t.string "password_digest", null: false
     t.string "timezone", default: "Etc/UTC", null: false
     t.datetime "updated_at", null: false
@@ -150,7 +149,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_160002) do
   end
 
   add_foreign_key "availability_windows", "schedule_links"
-  add_foreign_key "availability_windows", "users"
   add_foreign_key "bookings", "contacts"
   add_foreign_key "bookings", "schedule_links"
   add_foreign_key "contacts", "users"

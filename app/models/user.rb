@@ -1,11 +1,14 @@
 class User < ApplicationRecord
   has_secure_password
+
+  before_destroy :prevent_owner_destruction
+
   has_many :sessions, dependent: :destroy
   has_many :sent_invitations, class_name: "Invitation", foreign_key: :invited_by_id, dependent: :nullify
   has_many :schedule_link_members, dependent: :destroy
   has_many :schedule_links, through: :schedule_link_members
   has_many :created_schedule_links, class_name: "ScheduleLink", foreign_key: :created_by_id, dependent: :destroy
-  has_many :availability_windows, dependent: :destroy
+
   has_many :contacts, dependent: :destroy
   has_many :workflows, dependent: :destroy
 
@@ -16,4 +19,13 @@ class User < ApplicationRecord
 
   encrypts :google_calendar_token
   encrypts :google_calendar_refresh_token
+
+  private
+
+  def prevent_owner_destruction
+    if owner?
+      errors.add(:base, "Owner account cannot be deleted")
+      throw :abort
+    end
+  end
 end

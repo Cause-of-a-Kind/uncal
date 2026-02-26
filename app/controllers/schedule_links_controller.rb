@@ -12,10 +12,9 @@ class ScheduleLinksController < ApplicationController
   end
 
   def show
-    @windows_by_member = @schedule_link.availability_windows
-      .includes(:user)
+    @windows_by_day = @schedule_link.availability_windows
       .order(:day_of_week, :start_time)
-      .group_by(&:user)
+      .group_by(&:day_of_week)
   end
 
   def new

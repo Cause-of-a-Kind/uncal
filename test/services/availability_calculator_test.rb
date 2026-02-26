@@ -20,9 +20,9 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     GoogleCalendarService.define_singleton_method(:new, @original_gcal_new)
   end
 
-  # Cycle 2: Single member
+  # Single member, link-level windows
 
-  test "returns slots for member with one window on Wednesday" do
+  test "returns slots for link with one window on Wednesday" do
     # Fixture: one_wednesday — day 2 (Wednesday), 09:00-17:00 ET on link_one
     # 2026-03-04 is a Wednesday
     date = Date.new(2026, 3, 4)
@@ -94,7 +94,7 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
   end
 
   test "returns empty when no windows for that day" do
-    # 2026-03-05 is a Thursday — no windows for user one on link_one
+    # 2026-03-05 is a Thursday — no windows on link_one
     date = Date.new(2026, 3, 5)
 
     travel_to Time.utc(2026, 3, 3, 0, 0) do
@@ -103,7 +103,7 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     end
   end
 
-  test "handles member with multiple windows on same day" do
+  test "handles link with multiple windows on same day" do
     # Monday (day 0): one_monday_morning 09:00-12:00 + one_monday_afternoon 13:00-17:00 on link_one
     # 2026-03-02 is a Monday
     date = Date.new(2026, 3, 2)
@@ -147,47 +147,77 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     end
   end
 
-  # Cycle 3: Multi-member & constraints
+  # Multi-member: link windows + GCal subtraction
 
-  test "intersects two members — only mutual free times" do
+  test "both members GCal busy times are subtracted from link windows" do
+    # link_two has Monday window 08:00-11:00 UTC (fixture two_monday)
     # link_two has two members: user_one and user_two
-    # user_one has Monday window 08:00-11:00 UTC on link_two (fixture two_monday)
-    # Add a window for user_two on link_two for Monday
-    AvailabilityWindow.create!(
-      schedule_link: @link_two,
-      user: @user_two,
-      day_of_week: 0,
-      start_time: "10:00",
-      end_time: "14:00"
-    )
-
     # 2026-03-02 is a Monday
     date = Date.new(2026, 3, 2)
+
+    # User one busy 08:00-09:00, user two busy 10:00-11:00
+    @user_one.update!(
+      google_calendar_connected: true,
+      google_calendar_token: "token",
+      google_calendar_refresh_token: "refresh",
+      google_calendar_token_expires_at: 1.hour.from_now
+    )
+    @user_two.update!(
+      google_calendar_connected: true,
+      google_calendar_token: "token",
+      google_calendar_refresh_token: "refresh",
+      google_calendar_token_expires_at: 1.hour.from_now
+    )
+
+    GoogleCalendarService.define_singleton_method(:new) do |user|
+      service = Object.new
+      if user.email_address == "one@example.com"
+        service.define_singleton_method(:busy_times) do |_start, _end|
+          [ { start: Time.utc(2026, 3, 2, 8, 0), end: Time.utc(2026, 3, 2, 9, 0) } ]
+        end
+      else
+        service.define_singleton_method(:busy_times) do |_start, _end|
+          [ { start: Time.utc(2026, 3, 2, 10, 0), end: Time.utc(2026, 3, 2, 11, 0) } ]
+        end
+      end
+      service
+    end
 
     travel_to Time.utc(2026, 3, 1, 0, 0) do
       result = AvailabilityCalculator.new(@link_two, date).available_slots
 
-      assert result.any?, "Expected overlapping slots"
-
-      # link_two timezone is Etc/UTC, so times are direct
-      # Overlap: 10:00-11:00 UTC (1 hour, 60-min duration = 1 slot)
+      # Link window: 08:00-11:00 UTC (3 hours, 60-min duration)
+      # User one free: 09:00-11:00 (after subtracting 08:00-09:00)
+      # User two free: 08:00-10:00 (after subtracting 10:00-11:00)
+      # Intersection: 09:00-10:00 (1 slot)
       assert_equal 1, result.length
-      assert_equal Time.utc(2026, 3, 2, 10, 0), result.first[:start_time]
+      assert_equal Time.utc(2026, 3, 2, 9, 0), result.first[:start_time]
     end
   end
 
-  test "returns empty when no overlap between members" do
-    # user_one: Monday 08:00-11:00 UTC on link_two
-    # user_two: Monday 12:00-15:00 UTC — no overlap
-    AvailabilityWindow.create!(
-      schedule_link: @link_two,
-      user: @user_two,
-      day_of_week: 0,
-      start_time: "12:00",
-      end_time: "15:00"
+  test "member GCal event blocks that slot for all members" do
+    # link_two has Monday window 08:00-11:00 UTC
+    # One member is busy for the entire window — no slots available
+    date = Date.new(2026, 3, 2)
+
+    @user_one.update!(
+      google_calendar_connected: true,
+      google_calendar_token: "token",
+      google_calendar_refresh_token: "refresh",
+      google_calendar_token_expires_at: 1.hour.from_now
     )
 
-    date = Date.new(2026, 3, 2)
+    GoogleCalendarService.define_singleton_method(:new) do |user|
+      service = Object.new
+      if user.email_address == "one@example.com"
+        service.define_singleton_method(:busy_times) do |_start, _end|
+          [ { start: Time.utc(2026, 3, 2, 8, 0), end: Time.utc(2026, 3, 2, 11, 0) } ]
+        end
+      else
+        service.define_singleton_method(:busy_times) { |_start, _end| [] }
+      end
+      service
+    end
 
     travel_to Time.utc(2026, 3, 1, 0, 0) do
       result = AvailabilityCalculator.new(@link_two, date).available_slots
@@ -229,12 +259,6 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
 
   test "max_bookings_per_day returns empty at limit" do
     # link_two has max_bookings_per_day: 3
-    # Give user_two a matching window
-    AvailabilityWindow.create!(
-      schedule_link: @link_two, user: @user_two, day_of_week: 0,
-      start_time: "08:00", end_time: "17:00"
-    )
-
     date = Date.new(2026, 3, 2) # Monday
 
     travel_to Time.utc(2026, 3, 1, 0, 0) do
@@ -252,16 +276,7 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
   end
 
   test "max_bookings_per_day set but no bookings still returns slots" do
-    # link_two has max_bookings_per_day: 3
-    # Add window for user_two so there's overlap
-    AvailabilityWindow.create!(
-      schedule_link: @link_two,
-      user: @user_two,
-      day_of_week: 0,
-      start_time: "08:00",
-      end_time: "11:00"
-    )
-
+    # link_two has max_bookings_per_day: 3 and Monday window 08:00-11:00 UTC
     date = Date.new(2026, 3, 2) # Monday
 
     travel_to Time.utc(2026, 3, 1, 0, 0) do
@@ -270,7 +285,7 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     end
   end
 
-  # Cycle 4: DST & edge cases
+  # DST & edge cases
 
   test "DST spring-forward: window contracts by 1hr in UTC" do
     # March 8, 2026 is when US springs forward (EST→EDT)
@@ -278,7 +293,6 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     # Create a Sunday window for testing (09:00-17:00 ET = 14:00-22:00 UTC)
     AvailabilityWindow.create!(
       schedule_link: @link_one,
-      user: @user_one,
       day_of_week: 6,  # Sunday
       start_time: "14:00",
       end_time: "22:00"
@@ -302,7 +316,6 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     # Create a window at 22:00-23:00 ET for Wednesday (= 03:00-04:00 UTC next day)
     AvailabilityWindow.create!(
       schedule_link: @link_one,
-      user: @user_one,
       day_of_week: 2,  # Wednesday
       start_time: "03:00",
       end_time: "04:00"

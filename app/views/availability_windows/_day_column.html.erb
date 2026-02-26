@@ -1,4 +1,4 @@
-<%# locals: (day_of_week:, windows:, schedule_link:, selected_user:) %>
+<%# locals: (day_of_week:, windows:, schedule_link:) %>
 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-xl p-4">
   <h3 class="text-sm font-semibold text-gray-900 mb-3"><%= day_name(day_of_week) %></h3>
 
@@ -14,6 +14,5 @@
 
   <%= render "availability_windows/form",
     schedule_link: schedule_link,
-    window: AvailabilityWindow.new(schedule_link: schedule_link, user: selected_user, day_of_week: day_of_week),
-    selected_user: selected_user %>
+    window: AvailabilityWindow.new(schedule_link: schedule_link, day_of_week: day_of_week) %>
 </div>

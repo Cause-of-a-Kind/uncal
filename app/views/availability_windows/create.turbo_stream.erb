@@ -7,6 +7,5 @@
 <%= turbo_stream.replace "window_form_day_#{@window.day_of_week}" do %>
   <%= render "availability_windows/form",
     schedule_link: @schedule_link,
-    window: AvailabilityWindow.new(schedule_link: @schedule_link, user: @selected_user, day_of_week: @window.day_of_week),
-    selected_user: @selected_user %>
+    window: AvailabilityWindow.new(schedule_link: @schedule_link, day_of_week: @window.day_of_week) %>
 <% end %>

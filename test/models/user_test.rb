@@ -41,4 +41,18 @@ class UserTest < ActiveSupport::TestCase
     user.update!(google_calendar_token_expires_at: expires_at)
     assert_in_delta expires_at, user.reload.google_calendar_token_expires_at, 1.second
   end
+
+  test "owner? returns true for owner" do
+    assert users(:one).owner?
+  end
+
+  test "owner? returns false for non-owner" do
+    assert_not users(:two).owner?
+  end
+
+  test "owner cannot be destroyed" do
+    owner = users(:one)
+    assert_not owner.destroy
+    assert_includes owner.errors[:base], "Owner account cannot be deleted"
+  end
 end

@@ -1,4 +1,4 @@
-<%= link_to "&larr; Back to availability".html_safe, schedule_link_availability_windows_path(@schedule_link, user_id: @selected_user.id), class: "text-sm text-gray-600 hover:text-gray-900" %>
+<%= link_to "&larr; Back to availability".html_safe, schedule_link_availability_windows_path(@schedule_link), class: "text-sm text-gray-600 hover:text-gray-900" %>
 
 <div class="mb-6 mt-2">
   <h1 class="text-2xl font-bold text-gray-900">Copy Availability — <%= @schedule_link.name %></h1>
@@ -7,10 +7,6 @@
 <% if @other_links.any? %>
   <%= render layout: "ui/card", locals: { title: "Copy from another schedule link" } do %>
     <%= form_with url: copy_schedule_link_availability_windows_path(@schedule_link), method: :post, class: "space-y-4" do |form| %>
-      <% if @selected_user != Current.user %>
-        <%= form.hidden_field :user_id, value: @selected_user.id %>
-      <% end %>
-
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Source schedule link</label>
         <%= form.select :source_link_id,

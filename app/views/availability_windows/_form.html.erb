@@ -1,4 +1,4 @@
-<%# locals: (schedule_link:, window:, selected_user:) %>
+<%# locals: (schedule_link:, window:) %>
 <%= turbo_frame_tag "window_form_day_#{window.day_of_week}" do %>
   <%= form_with model: window,
     url: schedule_link_availability_windows_path(schedule_link),
@@ -6,9 +6,6 @@
     class: "flex items-end gap-2 mt-2" do |form| %>
 
     <%= form.hidden_field :day_of_week %>
-    <% if selected_user != Current.user %>
-      <%= form.hidden_field :user_id, value: selected_user.id %>
-    <% end %>
 
     <div class="flex-1">
       <label class="block text-xs font-medium text-gray-500 mb-1">Start</label>

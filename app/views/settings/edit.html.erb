@@ -26,10 +26,18 @@
       <ul class="divide-y divide-gray-200 -mx-6">
         <% @team_members.each do |member| %>
           <li class="flex items-center justify-between px-6 py-3">
-            <div>
-              <p class="text-sm font-medium text-gray-900"><%= member.name %></p>
-              <p class="text-sm text-gray-500"><%= member.email_address %></p>
+            <div class="flex items-center gap-2">
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= member.name %></p>
+                <p class="text-sm text-gray-500"><%= member.email_address %></p>
+              </div>
+              <% if member.owner? %>
+                <%= render "ui/badge", label: "Owner", color: :blue %>
+              <% end %>
             </div>
+            <% if Current.user.owner? && !member.owner? %>
+              <%= button_to "Remove", team_member_path(member), method: :delete, class: "text-sm text-red-600 hover:text-red-800 font-medium", data: { turbo_confirm: "Remove #{member.name}? All their schedule links, bookings, contacts, and workflows will be permanently deleted." } %>
+            <% end %>
           </li>
         <% end %>
       </ul>

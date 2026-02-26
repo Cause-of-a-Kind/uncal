@@ -98,21 +98,14 @@
   <% end %>
 
   <%= render layout: "ui/card", locals: { title: "Availability", description: "Times shown in #{@schedule_link.timezone}" } do %>
-    <% if @windows_by_member.any? %>
-      <div class="space-y-6 -mx-6">
-        <% @windows_by_member.each do |member, windows| %>
-          <div class="px-6">
-            <h3 class="text-sm font-medium text-gray-900 mb-2"><%= member.name %></h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
-              <% windows.group_by(&:day_of_week).each do |day, day_windows| %>
-                <div>
-                  <p class="text-xs font-medium text-gray-500 mb-1"><%= day_name(day) %></p>
-                  <% day_windows.each do |window| %>
-                    <p class="text-sm text-gray-700"><%= format_window_time(window.start_time) %> - <%= format_window_time(window.end_time) %></p>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
+    <% if @windows_by_day.any? %>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <% @windows_by_day.each do |day, windows| %>
+          <div>
+            <p class="text-xs font-medium text-gray-500 mb-1"><%= day_name(day) %></p>
+            <% windows.each do |window| %>
+              <p class="text-sm text-gray-700"><%= format_window_time(window.start_time) %> - <%= format_window_time(window.end_time) %></p>
+            <% end %>
           </div>
         <% end %>
       </div>

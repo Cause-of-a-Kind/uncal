@@ -4,7 +4,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   test "valid with all required attributes" do
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       day_of_week: 1,
       start_time: "09:00",
       end_time: "12:00"
@@ -14,7 +13,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
 
   test "requires schedule_link" do
     window = AvailabilityWindow.new(
-      user: users(:one),
       day_of_week: 1,
       start_time: "09:00",
       end_time: "12:00"
@@ -23,21 +21,9 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
     assert_includes window.errors[:schedule_link], "must exist"
   end
 
-  test "requires user" do
-    window = AvailabilityWindow.new(
-      schedule_link: schedule_links(:one),
-      day_of_week: 1,
-      start_time: "09:00",
-      end_time: "12:00"
-    )
-    assert_not window.valid?
-    assert_includes window.errors[:user], "must exist"
-  end
-
   test "requires day_of_week" do
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       start_time: "09:00",
       end_time: "12:00"
     )
@@ -48,7 +34,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   test "day_of_week must be 0 through 6" do
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       start_time: "09:00",
       end_time: "12:00"
     )
@@ -69,7 +54,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   test "start_time must be before end_time" do
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       day_of_week: 1,
       start_time: "14:00",
       end_time: "09:00"
@@ -81,7 +65,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   test "start_time equal to end_time is invalid" do
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       day_of_week: 1,
       start_time: "09:00",
       end_time: "09:00"
@@ -90,11 +73,10 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
     assert_includes window.errors[:start_time], "must be before end time"
   end
 
-  test "rejects overlapping windows for same user, day, and schedule_link" do
-    # Fixture: one_monday_morning is 14:00-17:00 UTC (09:00-12:00 ET) for user one on link one, day 0
+  test "rejects overlapping windows for same day and schedule_link" do
+    # Fixture: one_monday_morning is 14:00-17:00 UTC on link one, day 0
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       day_of_week: 0,
       start_time: "15:00",
       end_time: "19:00"
@@ -108,7 +90,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
     # Add a gap window between them
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       day_of_week: 0,
       start_time: "17:00",
       end_time: "18:00"
@@ -117,25 +98,9 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   end
 
   test "allows same times on different days" do
-    # Fixture: one_monday_morning is 09:00-12:00 on day 0
     window = AvailabilityWindow.new(
       schedule_link: schedule_links(:one),
-      user: users(:one),
       day_of_week: 1,
-      start_time: "09:00",
-      end_time: "12:00"
-    )
-    assert window.valid?
-  end
-
-  test "allows same times on same day for different users on same link" do
-    # Need user two to be a member of link one
-    schedule_links(:one).members << users(:two)
-
-    window = AvailabilityWindow.new(
-      schedule_link: schedule_links(:one),
-      user: users(:two),
-      day_of_week: 0,
       start_time: "09:00",
       end_time: "12:00"
     )
@@ -145,11 +110,6 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
   test "belongs_to schedule_link" do
     window = availability_windows(:one_monday_morning)
     assert_equal schedule_links(:one), window.schedule_link
-  end
-
-  test "belongs_to user" do
-    window = availability_windows(:one_monday_morning)
-    assert_equal users(:one), window.user
   end
 
   test "schedule_link has_many availability_windows" do

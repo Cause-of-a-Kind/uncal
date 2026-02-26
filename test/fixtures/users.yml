@@ -5,6 +5,7 @@ one:
   password_digest: <%= password_digest %>
   name: User One
   timezone: America/New_York
+  owner: true
 
 two:
   email_address: two@example.com

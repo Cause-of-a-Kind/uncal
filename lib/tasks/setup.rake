@@ -8,6 +8,7 @@ namespace :setup do
     user = User.find_or_initialize_by(email_address: email)
     user.name = name
     user.password = password
+    user.owner = true
     user.timezone = "Etc/UTC" if user.new_record?
 
     if user.save
