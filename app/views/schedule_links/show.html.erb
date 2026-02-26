@@ -1,9 +1,10 @@
-<div class="flex items-center justify-between mb-6">
+<%= link_to "&larr; Back to schedule links".html_safe, schedule_links_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 mt-2">
   <h1 class="text-2xl font-bold text-gray-900"><%= @schedule_link.name %></h1>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     <%= render "ui/button", label: "Manage Availability", href: schedule_link_availability_windows_path(@schedule_link), variant: :primary %>
     <%= render "ui/button", label: "Edit", href: edit_schedule_link_path(@schedule_link), variant: :secondary %>
-    <%= render "ui/button", label: "Back", href: schedule_links_path, variant: :ghost %>
   </div>
 </div>
 

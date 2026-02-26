@@ -1,8 +1,7 @@
-<div class="flex items-center justify-between mb-6">
+<%= link_to "&larr; Back to availability".html_safe, schedule_link_availability_windows_path(@schedule_link, user_id: @selected_user.id), class: "text-sm text-gray-600 hover:text-gray-900" %>
+
+<div class="mb-6 mt-2">
   <h1 class="text-2xl font-bold text-gray-900">Copy Availability — <%= @schedule_link.name %></h1>
-  <div class="flex gap-2">
-    <%= render "ui/button", label: "Back", href: schedule_link_availability_windows_path(@schedule_link, user_id: @selected_user.id), variant: :ghost %>
-  </div>
 </div>
 
 <% if @other_links.any? %>

@@ -1,8 +1,9 @@
-<div class="flex items-center justify-between mb-6">
+<%= link_to "&larr; Back to schedule link".html_safe, schedule_link_path(@schedule_link), class: "text-sm text-gray-600 hover:text-gray-900" %>
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 mt-2">
   <h1 class="text-2xl font-bold text-gray-900">Availability — <%= @schedule_link.name %></h1>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     <%= render "ui/button", label: "Copy from Link", href: copy_schedule_link_availability_windows_path(@schedule_link, user_id: @selected_user.id), variant: :secondary %>
-    <%= render "ui/button", label: "Back", href: schedule_link_path(@schedule_link), variant: :ghost %>
   </div>
 </div>
 

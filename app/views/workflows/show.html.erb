@@ -1,13 +1,14 @@
-<div class="flex items-center justify-between mb-6">
+<%= link_to "&larr; Back to workflows".html_safe, workflows_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 mt-2">
   <div class="flex items-center gap-3">
     <h1 class="text-2xl font-bold text-gray-900"><%= @workflow.name %></h1>
     <%= render "ui/badge", label: @workflow.state.capitalize, color: @workflow.active? ? :green : :gray %>
   </div>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
     <%= render "ui/button", label: @workflow.active? ? "Deactivate" : "Activate", href: toggle_workflow_path(@workflow), method: :patch, variant: :secondary %>
     <%= render "ui/button", label: "Edit", href: edit_workflow_path(@workflow), variant: :secondary %>
     <%= render "ui/button", label: "Delete", href: workflow_path(@workflow), method: :delete, variant: :danger, data: { turbo_confirm: "Delete this workflow?" } %>
-    <%= render "ui/button", label: "Back", href: workflows_path, variant: :ghost %>
   </div>
 </div>
 
