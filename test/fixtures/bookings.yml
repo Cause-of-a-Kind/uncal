@@ -16,3 +16,31 @@ cancelled_one:
   invitee_email: cancelled@example.com
   invitee_timezone: America/New_York
   status: cancelled
+
+upcoming_one:
+  schedule_link: one
+  contact: one_alice
+  start_time: <%= 2.days.from_now.utc.beginning_of_hour.iso8601 %>
+  end_time: <%= (2.days.from_now.utc.beginning_of_hour + 30.minutes).iso8601 %>
+  invitee_name: Alice Visitor
+  invitee_email: alice@visitor.com
+  invitee_timezone: America/New_York
+  status: confirmed
+
+recent_one:
+  schedule_link: one
+  start_time: <%= 3.days.ago.utc.beginning_of_hour.iso8601 %>
+  end_time: <%= (3.days.ago.utc.beginning_of_hour + 30.minutes).iso8601 %>
+  invitee_name: Recent Visitor
+  invitee_email: recent@visitor.com
+  invitee_timezone: America/New_York
+  status: confirmed
+
+old_one:
+  schedule_link: one
+  start_time: <%= 120.days.ago.utc.beginning_of_hour.iso8601 %>
+  end_time: <%= (120.days.ago.utc.beginning_of_hour + 30.minutes).iso8601 %>
+  invitee_name: Old Visitor
+  invitee_email: old@visitor.com
+  invitee_timezone: America/New_York
+  status: confirmed

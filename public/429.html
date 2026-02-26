@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Too Many Requests (429)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+      body {
+        background: #FFF;
+        color: #261B23;
+        display: grid;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: clamp(1rem, 2.5vw, 2rem);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100dvh;
+        place-items: center;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #101010; color: #e0e0e0; }
+      }
+      main {
+        display: grid;
+        gap: 1em;
+        padding: 2em;
+        place-items: center;
+        text-align: center;
+      }
+      h1 { font-size: 1.5em; }
+      p { font-size: 75%; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Too Many Requests</h1>
+      <p>You've made too many requests in a short period. Please wait a moment and try again.</p>
+    </main>
+  </body>
+</html>

@@ -25,8 +25,14 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :contacts, only: %i[index show update]
+
   namespace :admin do
-    resources :bookings, only: %i[index show]
+    resources :bookings, only: %i[index show] do
+      member do
+        patch :cancel
+      end
+    end
   end
 
   resource :google_calendar, only: [], controller: "google_calendar" do

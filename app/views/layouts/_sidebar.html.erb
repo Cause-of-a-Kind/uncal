@@ -1,6 +1,11 @@
-<nav class="flex flex-col w-64 bg-white border-r border-gray-200 px-4 py-6">
-  <div class="mb-8">
+<nav class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 px-4 py-6 fixed inset-y-0 left-0 z-40 md:static md:z-auto" data-mobile-menu-target="menu">
+  <div class="mb-8 flex items-center justify-between">
     <h1 class="text-xl font-bold text-gray-900 px-3">Uncal</h1>
+    <button type="button" data-action="mobile-menu#close" class="text-gray-600 hover:text-gray-900 md:hidden">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
   </div>
 
   <div class="flex-1 space-y-1">
@@ -8,7 +13,7 @@
     <%= sidebar_link_to "Schedule Links", schedule_links_path, icon: "calendar" %>
     <%= sidebar_link_to "Workflows", workflows_path, icon: "mail" %>
     <%= sidebar_link_to "Bookings", admin_bookings_path, icon: "clock" %>
-    <%= sidebar_link_to "Contacts", "#", icon: "users" %>
+    <%= sidebar_link_to "Contacts", contacts_path, icon: "users" %>
   </div>
 
   <div class="mt-auto space-y-1 border-t border-gray-200 pt-4">

@@ -11,7 +11,7 @@
 | 5 | [Availability Calculation Engine](phases/05-availability-engine.md) | `[x] Complete` |
 | 6 | [Public Booking Page & Booking Creation](phases/06-public-booking.md) | `[x] Complete` |
 | 7 | [Email Workflows](phases/07-email-workflows.md) | `[x] Complete` |
-| 8 | [Dashboard, Polish & Production Readiness](phases/08-dashboard-polish.md) | `[ ] Pending` |
+| 8 | [Dashboard, Polish & Production Readiness](phases/08-dashboard-polish.md) | `[x] Complete` |
 
 ## Architecture Decisions
 

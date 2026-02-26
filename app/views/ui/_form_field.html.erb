@@ -1,4 +1,4 @@
-<%# locals: (form:, field:, label: nil, type: :text, hint: nil, required: false, options: nil, placeholder: nil, readonly: false, value: nil) %>
+<%# locals: (form:, field:, label: nil, type: :text, hint: nil, required: false, options: nil, placeholder: nil, readonly: false, value: nil, include_blank: nil) %>
 <%
   label_text = label || field.to_s.humanize
   obj = form.object.is_a?(ActiveModel::Model) ? form.object : nil
@@ -13,13 +13,15 @@
 
   <% case type.to_sym %>
   <% when :select %>
-    <%= form.select field, options, { prompt: required ? "Select..." : nil }, class: input_css, required: required %>
+    <%= form.select field, options, { prompt: required ? "Select..." : nil, include_blank: include_blank }, class: input_css, required: required %>
   <% when :textarea %>
     <%= form.text_area field, class: input_css, required: required, placeholder: placeholder, rows: 4 %>
   <% when :password %>
     <%= form.password_field field, class: input_css, required: required, placeholder: placeholder %>
   <% when :email %>
     <%= form.email_field field, class: input_css, required: required, placeholder: placeholder, readonly: readonly, **({ value: value } if value) %>
+  <% when :date %>
+    <%= form.date_field field, class: input_css, required: required, **({ value: value } if value) %>
   <% else %>
     <%= form.text_field field, class: input_css, required: required, placeholder: placeholder, readonly: readonly, **({ value: value } if value) %>
   <% end %>

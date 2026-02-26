@@ -43,6 +43,9 @@ gem "image_processing", "~> 1.2"
 # Tailwind CSS [https://github.com/rails/tailwindcss-rails]
 gem "tailwindcss-rails"
 
+# Rate limiting [https://github.com/rack/rack-attack]
+gem "rack-attack"
+
 # Google Calendar API [https://github.com/googleapis/google-api-ruby-client]
 gem "google-apis-calendar_v3"
 
@@ -63,6 +66,8 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  # Preview emails in the browser [https://github.com/ryanb/letter_opener]
+  gem "letter_opener"
 end
 
 group :test do

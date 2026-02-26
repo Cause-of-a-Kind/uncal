@@ -6,6 +6,6 @@ class BookingPagesController < ApplicationController
     @link = ScheduleLink.active.find_by!(slug: params[:slug])
     @members = @link.members
   rescue ActiveRecord::RecordNotFound
-    raise ActionController::RoutingError, "Not Found"
+    render "booking_pages/not_found", status: :not_found
   end
 end

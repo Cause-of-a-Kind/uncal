@@ -5,6 +5,14 @@ one_alice:
   total_bookings_count: 1
   last_booked_at: <%= 1.day.ago.utc.iso8601 %>
 
+one_bob:
+  user: one
+  name: Bob Contact
+  email: bob@contact.com
+  total_bookings_count: 2
+  last_booked_at: <%= 5.days.ago.utc.iso8601 %>
+  notes: "Prefers morning meetings"
+
 two_bob:
   user: two
   name: Bob Guest

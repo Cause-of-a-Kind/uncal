@@ -16,6 +16,18 @@ class BookingMailer < ApplicationMailer
     )
   end
 
+  def cancellation(booking)
+    @booking = booking
+    @link = booking.schedule_link
+    @timezone = ActiveSupport::TimeZone[@booking.invitee_timezone]
+    @members = @link.members
+
+    mail(
+      to: @booking.invitee_email,
+      subject: "Cancelled: #{@link.meeting_name}"
+    )
+  end
+
   private
 
   def cancellation_token(booking)

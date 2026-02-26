@@ -1,50 +1,71 @@
 <h1 class="text-2xl font-bold text-gray-900 mb-6">Bookings</h1>
 
-<% if @bookings.any? %>
-  <%= render layout: "ui/card" do %>
-    <div class="-mx-6 -my-4">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitee</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meeting</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% @bookings.each do |booking| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900"><%= booking.invitee_name %></div>
-                <div class="text-sm text-gray-500"><%= booking.invitee_email %></div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= booking.schedule_link.meeting_name %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= booking.start_time.strftime("%b %-d, %Y") %></div>
-                <div class="text-sm text-gray-500">
-                  <%= booking.start_time.strftime("%-I:%M %p") %> &ndash; <%= booking.end_time.strftime("%-I:%M %p") %>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <%= render "ui/badge", label: booking.status.capitalize, color: booking.status == "confirmed" ? :green : :red %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                <%= link_to "View", admin_booking_path(booking), class: "text-gray-600 hover:text-gray-900 font-medium" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+<%= render layout: "ui/card" do %>
+  <%= form_with url: admin_bookings_path, method: :get, data: { turbo_action: "advance" } do |f| %>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <%= render "ui/form_field", form: f, field: :schedule_link_id, label: "Schedule Link", type: :select,
+        options: options_from_collection_for_select(@schedule_links, :id, :name, params[:schedule_link_id]),
+        include_blank: "All links" %>
+      <%= render "ui/form_field", form: f, field: :status, label: "Status", type: :select,
+        options: options_for_select([["Confirmed", "confirmed"], ["Cancelled", "cancelled"]], params[:status]),
+        include_blank: "All statuses" %>
+      <%= render "ui/form_field", form: f, field: :from, label: "From", type: :date, value: params[:from] %>
+      <%= render "ui/form_field", form: f, field: :to, label: "To", type: :date, value: params[:to] %>
+    </div>
+    <div class="flex gap-2">
+      <%= render "ui/button", label: "Filter", type: "submit", variant: :primary, size: :sm %>
+      <%= render "ui/button", label: "Clear", href: admin_bookings_path, variant: :ghost, size: :sm %>
     </div>
   <% end %>
-<% else %>
-  <%= render "ui/empty_state",
-    title: "No bookings yet",
-    description: "Bookings will appear here when visitors book meetings through your schedule links.",
-    action_label: "View schedule links",
-    action_path: schedule_links_path %>
 <% end %>
+
+<div class="mt-6">
+  <% if @bookings.any? %>
+    <%= render layout: "ui/card" do %>
+      <div class="-mx-6 -my-4 overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitee</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meeting</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @bookings.each do |booking| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= booking.invitee_name %></div>
+                  <div class="text-sm text-gray-500"><%= booking.invitee_email %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= booking.schedule_link.meeting_name %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900"><%= booking.start_time.strftime("%b %-d, %Y") %></div>
+                  <div class="text-sm text-gray-500">
+                    <%= booking.start_time.strftime("%-I:%M %p") %> &ndash; <%= booking.end_time.strftime("%-I:%M %p") %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= render "ui/badge", label: booking.status.capitalize, color: booking.status == "confirmed" ? :green : :red %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <%= link_to "View", admin_booking_path(booking), class: "text-gray-600 hover:text-gray-900 font-medium" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "ui/empty_state",
+      title: "No bookings yet",
+      description: "Bookings will appear here when visitors book meetings through your schedule links.",
+      action_label: "View schedule links",
+      action_path: schedule_links_path %>
+  <% end %>
+</div>

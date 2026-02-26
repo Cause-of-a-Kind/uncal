@@ -1,8 +1,15 @@
 <%= link_to "&larr; Back to bookings".html_safe, admin_bookings_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
 
 <div class="flex items-center justify-between mb-6 mt-2">
-  <h1 class="text-2xl font-bold text-gray-900">Booking Details</h1>
-  <%= render "ui/badge", label: @booking.status.capitalize, color: @booking.status == "confirmed" ? :green : :red %>
+  <div class="flex items-center gap-3">
+    <h1 class="text-2xl font-bold text-gray-900">Booking Details</h1>
+    <%= render "ui/badge", label: @booking.status.capitalize, color: @booking.status == "confirmed" ? :green : :red %>
+  </div>
+  <% if @booking.status == "confirmed" %>
+    <%= button_to "Cancel Booking", cancel_admin_booking_path(@booking), method: :patch,
+      class: "inline-flex items-center justify-center font-medium rounded-lg px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
+      data: { turbo_confirm: "Are you sure you want to cancel this booking?" } %>
+  <% end %>
 </div>
 
 <%= render layout: "ui/card" do %>
