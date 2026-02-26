@@ -70,4 +70,38 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     patch contact_path(contacts(:two_bob)), params: { contact: { notes: "hacked" } }
     assert_response :not_found
   end
+
+  test "export requires authentication" do
+    sign_out
+    get export_contacts_path
+    assert_redirected_to new_session_path
+  end
+
+  test "export returns CSV with correct content type and filename" do
+    get export_contacts_path
+    assert_response :success
+    assert_equal "text/csv", response.content_type
+    assert_match 'filename="contacts.csv"', response.headers["Content-Disposition"]
+  end
+
+  test "export includes correct headers and contact data" do
+    get export_contacts_path
+    csv = CSV.parse(response.body)
+    assert_equal %w[Name Email Total\ Bookings Last\ Booked Notes Created\ At], csv.first
+
+    alice = contacts(:one_alice)
+    alice_row = csv.find { |row| row[1] == alice.email }
+    assert_not_nil alice_row
+    assert_equal alice.name, alice_row[0]
+    assert_equal alice.total_bookings_count.to_s, alice_row[2]
+  end
+
+  test "export only includes current users contacts" do
+    get export_contacts_path
+    csv = CSV.parse(response.body)
+    emails = csv.drop(1).map { |row| row[1] }
+    assert_includes emails, contacts(:one_alice).email
+    assert_includes emails, contacts(:one_bob).email
+    assert_not_includes emails, contacts(:two_bob).email
+  end
 end

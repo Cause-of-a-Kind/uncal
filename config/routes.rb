@@ -25,7 +25,9 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :contacts, only: %i[index show update]
+  resources :contacts, only: %i[index show update] do
+    get :export, on: :collection
+  end
 
   namespace :admin do
     resources :bookings, only: %i[index show] do

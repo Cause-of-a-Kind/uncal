@@ -9,6 +9,12 @@ class ContactsController < ApplicationController
     end
   end
 
+  def export
+    contacts = Current.user.contacts.order(last_booked_at: :desc)
+    csv = generate_csv(contacts)
+    send_data csv, filename: "contacts.csv", type: "text/csv"
+  end
+
   def show
     @bookings = Booking
       .joins(schedule_link: :schedule_link_members)
@@ -28,5 +34,24 @@ class ContactsController < ApplicationController
     @contact = Current.user.contacts.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     head :not_found
+  end
+
+  def generate_csv(contacts)
+    require "csv"
+    zone = Time.zone
+
+    CSV.generate do |csv|
+      csv << [ "Name", "Email", "Total Bookings", "Last Booked", "Notes", "Created At" ]
+      contacts.each do |contact|
+        csv << [
+          contact.name,
+          contact.email,
+          contact.total_bookings_count,
+          contact.last_booked_at&.in_time_zone(zone)&.strftime("%Y-%m-%d %H:%M"),
+          contact.notes,
+          contact.created_at.in_time_zone(zone).strftime("%Y-%m-%d %H:%M")
+        ]
+      end
+    end
   end
 end

@@ -46,6 +46,12 @@ gem "tailwindcss-rails"
 # Rate limiting [https://github.com/rack/rack-attack]
 gem "rack-attack"
 
+# Markdown rendering for email bodies [https://github.com/vmg/redcarpet]
+gem "redcarpet"
+
+# CSV generation (removed from default gems in Ruby 3.4)
+gem "csv"
+
 # Google Calendar API [https://github.com/googleapis/google-api-ruby-client]
 gem "google-apis-calendar_v3"
 
