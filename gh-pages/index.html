@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uncal — Self-Hosted Calendar Booking for Small Teams</title>
+  <meta name="description" content="Invite-only scheduling app like Calendly, but you own it. Built with Rails 8, SQLite, and Hotwire.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      color: var(--gray-900);
+      line-height: 1.6;
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      text-decoration: none;
+      letter-spacing: -0.025em;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: color 0.15s, background-color 0.15s;
+    }
+
+    .header-link:hover {
+      color: var(--gray-900);
+      background-color: var(--gray-50);
+    }
+
+    .header-link:focus-visible {
+      outline: 2px solid var(--blue-500);
+      outline-offset: 2px;
+    }
+
+    .header-link svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 96px 0 80px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .hero .tagline {
+      font-size: 1.25rem;
+      color: var(--gray-600);
+      max-width: 560px;
+      margin: 0 auto 12px;
+      line-height: 1.5;
+    }
+
+    .hero .subtitle {
+      font-size: 1rem;
+      color: var(--gray-400);
+      max-width: 560px;
+      margin: 0 auto 40px;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gray-900);
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background-color 0.15s, transform 0.1s;
+    }
+
+    .cta-button:hover {
+      background: var(--gray-700);
+    }
+
+    .cta-button:active {
+      transform: scale(0.98);
+    }
+
+    .cta-button:focus-visible {
+      outline: 2px solid var(--blue-500);
+      outline-offset: 2px;
+    }
+
+    .cta-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Video Series */
+    .video-series {
+      padding: 80px 0;
+      background: var(--gray-50);
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--gray-500);
+      text-align: center;
+      max-width: 560px;
+      margin: -32px auto 48px;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .video-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 */
+      height: 0;
+      overflow: hidden;
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-card .video-info {
+      padding: 16px 20px;
+    }
+
+    .video-card .video-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-400);
+      margin-bottom: 4px;
+    }
+
+    .video-card .video-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    /* Features */
+    .features {
+      padding: 80px 0;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: -0.025em;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 28px;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gray-100);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    /* Tech Stack */
+    .tech-stack {
+      padding: 80px 0;
+      background: var(--gray-50);
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      padding: 8px 18px;
+      border-radius: 100px;
+    }
+
+    /* Getting Started */
+    .getting-started {
+      padding: 80px 0;
+    }
+
+    .steps {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: var(--gray-900);
+      color: var(--white);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-content h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    .step-content code {
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+      font-size: 0.8125rem;
+      background: var(--gray-200);
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: var(--gray-800);
+    }
+
+    .getting-started .cta-secondary {
+      display: block;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .cta-secondary a {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--blue-600);
+      text-decoration: none;
+    }
+
+    .cta-secondary a:hover {
+      text-decoration: underline;
+    }
+
+    .cta-secondary a:focus-visible {
+      outline: 2px solid var(--blue-500);
+      outline-offset: 2px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--gray-200);
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.8125rem;
+      color: var(--gray-400);
+    }
+
+    footer a {
+      color: var(--gray-500);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--gray-700);
+      text-decoration: underline;
+    }
+
+    footer a:focus-visible {
+      outline: 2px solid var(--blue-500);
+      outline-offset: 2px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 64px 0 56px;
+      }
+
+      .hero h1 {
+        font-size: 2.25rem;
+      }
+
+      .hero .tagline {
+        font-size: 1.125rem;
+      }
+
+      .features-grid,
+      .video-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 32px;
+      }
+
+      .section-subtitle {
+        margin: -16px auto 32px;
+      }
+
+      .features,
+      .tech-stack,
+      .getting-started,
+      .video-series {
+        padding: 56px 0;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .video-grid {
+        grid-template-columns: 1fr;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <a href="#" class="logo">Uncal</a>
+      <a href="https://github.com/Cause-of-a-Kind/uncal" class="header-link">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="container">
+        <h1>Uncal</h1>
+        <p class="tagline">Self-hosted calendar booking for small teams. Like Calendly, but you own it.</p>
+        <p class="subtitle">Built with Rails 8, SQLite, and Hotwire. No Redis, no Node.js, no external services required.</p>
+        <a href="https://github.com/Cause-of-a-Kind/uncal" class="cta-button">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </section>
+
+    <section class="video-series">
+      <div class="container">
+        <h2 class="section-title">We k*lled Calendly</h2>
+        <p class="section-subtitle">Watch the three-part series where we build Uncal from scratch.</p>
+        <div class="video-grid">
+
+          <div class="video-card">
+            <div class="video-wrapper">
+              <iframe src="https://www.youtube-nocookie.com/embed/qFguwVY14QI" title="We k*lled Calendly — Part 1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="video-info">
+              <div class="video-label">Part 1</div>
+              <div class="video-title">We k*lled Calendly</div>
+            </div>
+          </div>
+
+          <div class="video-card">
+            <div class="video-wrapper">
+              <iframe src="https://www.youtube-nocookie.com/embed/SzWWMTxO8Xw" title="We k*lled Calendly — Part 2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="video-info">
+              <div class="video-label">Part 2</div>
+              <div class="video-title">We k*lled Calendly</div>
+            </div>
+          </div>
+
+          <div class="video-card">
+            <div class="video-wrapper">
+              <iframe src="https://www.youtube-nocookie.com/embed/qKU_ZafZQYU" title="We k*lled Calendly — Part 3" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="video-info">
+              <div class="video-label">Part 3</div>
+              <div class="video-title">We k*lled Calendly</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">Everything you need, nothing you don't</h2>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F512;</div>
+            <h3>Invite-only teams</h3>
+            <p>No public sign-up. The first admin is seeded via a rake task, everyone else joins through email invitations.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F517;</div>
+            <h3>Schedule links</h3>
+            <p>Create booking pages with custom slugs. Add multiple team members to a single link for group availability.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F553;</div>
+            <h3>Availability windows</h3>
+            <p>Define per-member weekly availability with a visual grid. Copy schedules between links in one click.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F4C5;</div>
+            <h3>Google Calendar sync</h3>
+            <p>Connect Google Calendar to automatically check for conflicts. OAuth flow with automatic token refresh.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F30D;</div>
+            <h3>Timezone-aware booking</h3>
+            <p>Visitors see available slots in their local timezone. All times stored in UTC, converted on display.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x2709;</div>
+            <h3>Email workflows</h3>
+            <p>Automated confirmation, reminder, and follow-up emails. Build custom multi-step workflows with markdown templates.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F4CB;</div>
+            <h3>Contacts &amp; CRM-lite</h3>
+            <p>Every booker becomes a contact. Track booking history, notes, and communication in one place.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x1F4CA;</div>
+            <h3>Dashboard with stats</h3>
+            <p>See upcoming bookings, recent activity, and key metrics at a glance from a clean overview page.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">&#x2705;</div>
+            <h3>No external dependencies</h3>
+            <p>SQLite for everything &mdash; database, queue, cache, and WebSockets. No Redis, Postgres, or background services to manage.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="tech-stack">
+      <div class="container">
+        <h2 class="section-title">Built with</h2>
+        <div class="pills">
+          <span class="pill">Rails 8</span>
+          <span class="pill">SQLite</span>
+          <span class="pill">Hotwire</span>
+          <span class="pill">Tailwind CSS</span>
+          <span class="pill">Solid Queue</span>
+          <span class="pill">Solid Cache</span>
+          <span class="pill">Solid Cable</span>
+          <span class="pill">Kamal</span>
+          <span class="pill">Propshaft</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="getting-started">
+      <div class="container">
+        <h2 class="section-title">Get started in minutes</h2>
+        <div class="steps">
+
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Clone the repository</h3>
+              <p><code>git clone https://github.com/Cause-of-a-Kind/uncal.git</code></p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Install dependencies and set up the database</h3>
+              <p><code>bin/setup</code></p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Create the first admin user</h3>
+              <p><code>bin/rails setup:admin</code></p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Start the server</h3>
+              <p><code>bin/rails server</code></p>
+            </div>
+          </div>
+
+        </div>
+        <div class="cta-secondary">
+          <a href="https://github.com/Cause-of-a-Kind/uncal#readme">Read the full README &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Open source under the MIT License &middot; <a href="https://github.com/Cause-of-a-Kind/uncal">GitHub</a> &middot; Built by <a href="https://causeofakind.com">Cause of a Kind</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>
