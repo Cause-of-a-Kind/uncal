@@ -62,6 +62,11 @@ registry:
   username: your-username
   password:
     - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    APP_HOST: your-domain.com
+    FORCE_SSL: true
 ```
 
 ### 3. Set up credentials
@@ -78,6 +83,9 @@ Add your SMTP and Google Calendar credentials:
 smtp:
   user_name: your-smtp-username
   password: your-smtp-password
+  address: smtp.your-provider.com
+  port: 587
+  authentication: plain
 
 google:
   client_id: your-google-client-id
@@ -89,21 +97,7 @@ active_record_encryption:
   key_derivation_salt: <same>
 ```
 
-Then uncomment the SMTP config in `config/environments/production.rb` and set your domain:
-
-```ruby
-config.action_mailer.default_url_options = { host: "your-domain.com" }
-
-config.action_mailer.smtp_settings = {
-  user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  password: Rails.application.credentials.dig(:smtp, :password),
-  address: "smtp.your-provider.com",
-  port: 587,
-  authentication: :plain
-}
-```
-
-Also uncomment `config.assume_ssl` and `config.force_ssl` if using SSL (you should).
+SMTP is auto-configured from credentials — no need to edit `production.rb`. If you use Resend, set `address: smtp.resend.com` and `user_name: resend` with your API key as the password.
 
 ### 4. Configure Kamal secrets
 
@@ -154,7 +148,7 @@ Users connect their calendars individually from the Settings page.
 
 ### Email
 
-Email is required for invitations, booking confirmations, cancellations, and workflow automations. Configure SMTP in `config/environments/production.rb` as shown above.
+Email is required for invitations, booking confirmations, cancellations, and workflow automations. Configure SMTP credentials via `bin/rails credentials:edit` (see step 3 above). Any SMTP provider works — Resend, SendGrid, Postmark, Mailgun, AWS SES, etc.
 
 In development, emails are captured by [letter_opener_web](https://github.com/fgrehm/letter_opener_web) at `/letter_opener`.
 
@@ -210,7 +204,7 @@ bin/rails test                 # verify nothing broke
 bin/kamal deploy               # ship it
 ```
 
-Your configuration files (`config/deploy.yml`, `config/environments/production.rb`, credentials) won't conflict since they're either gitignored or unchanged upstream. View and stylesheet customizations may need manual merging.
+Your credentials and secrets are gitignored and won't conflict. `config/deploy.yml` may need a simple merge if it changes upstream (rare). Application code like `production.rb` is fully dynamic and doesn't need per-deployment edits.
 
 ## Running Tests
 
