@@ -9,3 +9,7 @@ one_on_two:
 two_on_two:
   schedule_link: two
   user: two
+
+one_on_google_meet:
+  schedule_link: google_meet
+  user: one

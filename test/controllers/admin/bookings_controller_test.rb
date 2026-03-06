@@ -105,6 +105,14 @@ module Admin
       assert_match "already cancelled", response.body
     end
 
+    test "show displays Google Meet link for google_meet booking" do
+      booking = bookings(:meet_booking)
+      get admin_booking_path(booking)
+      assert_response :success
+      assert_select "a[href=?]", booking.meeting_location_url
+      assert_match "meet.google.com", response.body
+    end
+
     test "cancel requires authentication" do
       sign_out
       patch cancel_admin_booking_path(bookings(:upcoming_one))

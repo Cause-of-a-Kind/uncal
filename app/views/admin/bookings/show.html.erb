@@ -43,10 +43,17 @@
       <dd class="mt-1 text-sm text-gray-900"><%= @booking.invitee_timezone %></dd>
     </div>
 
-    <% if @link.meeting_location_value.present? %>
+    <% location = @booking.meeting_location_url.presence || @link.meeting_location_value %>
+    <% if location.present? %>
       <div>
         <dt class="text-sm font-medium text-gray-500">Location</dt>
-        <dd class="mt-1 text-sm text-gray-900"><%= @link.meeting_location_value %></dd>
+        <dd class="mt-1 text-sm text-gray-900">
+          <% if location.start_with?("http") %>
+            <%= link_to location, location, target: "_blank", rel: "noopener", class: "text-blue-600 hover:underline" %>
+          <% else %>
+            <%= location %>
+          <% end %>
+        </dd>
       </div>
     <% end %>
 
