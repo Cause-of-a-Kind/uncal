@@ -11,7 +11,8 @@ class ScheduleLink < ApplicationRecord
   validates :name, presence: true
   validates :meeting_name, presence: true
   validates :meeting_duration_minutes, presence: true, numericality: { greater_than: 0 }
-  validates :meeting_location_type, presence: true, inclusion: { in: %w[link physical] }
+  validates :meeting_location_type, presence: true, inclusion: { in: %w[link physical google_meet] }
+  validates :meeting_location_value, presence: true, unless: -> { meeting_location_type == "google_meet" }
   validates :timezone, presence: true, inclusion: { in: ActiveSupport::TimeZone::MAPPING.values }
   validates :buffer_minutes, numericality: { greater_than_or_equal_to: 0 }
   validates :max_future_days, numericality: { greater_than: 0 }

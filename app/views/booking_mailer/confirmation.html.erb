@@ -25,10 +25,17 @@
     <td><strong>Duration:</strong></td>
     <td><%= @link.meeting_duration_minutes %> minutes</td>
   </tr>
-  <% if @link.meeting_location_value.present? %>
+  <% location = @booking.meeting_location_url.presence || @link.meeting_location_value %>
+  <% if location.present? %>
     <tr>
       <td><strong>Location:</strong></td>
-      <td><%= @link.meeting_location_value %></td>
+      <td>
+        <% if location.start_with?("http") %>
+          <%= link_to location, location, target: "_blank", rel: "noopener" %>
+        <% else %>
+          <%= location %>
+        <% end %>
+      </td>
     </tr>
   <% end %>
   <tr>

@@ -26,6 +26,7 @@ class ScheduleLinksController < ApplicationController
   def create
     @schedule_link = ScheduleLink.new(schedule_link_params)
     @schedule_link.created_by = Current.user
+    clear_location_value_for_google_meet
 
     if @schedule_link.save
       @schedule_link.members << Current.user
@@ -44,7 +45,10 @@ class ScheduleLinksController < ApplicationController
   end
 
   def update
-    if @schedule_link.update(schedule_link_params)
+    @schedule_link.assign_attributes(schedule_link_params)
+    clear_location_value_for_google_meet
+
+    if @schedule_link.save
       sync_members
       redirect_to @schedule_link, notice: "Schedule link updated."
     else
@@ -69,6 +73,10 @@ class ScheduleLinksController < ApplicationController
     unless @schedule_link.created_by == Current.user || @schedule_link.members.include?(Current.user)
       redirect_to schedule_links_path, alert: "Not authorized."
     end
+  end
+
+  def clear_location_value_for_google_meet
+    @schedule_link.meeting_location_value = nil if @schedule_link.meeting_location_type == "google_meet"
   end
 
   def schedule_link_params

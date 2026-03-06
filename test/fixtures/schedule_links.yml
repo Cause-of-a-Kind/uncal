@@ -25,3 +25,15 @@ two:
   max_future_days: 60
   status: active
   created_by: two
+
+google_meet:
+  name: Meet Link
+  slug: meet1234
+  meeting_name: Quick Sync
+  meeting_duration_minutes: 30
+  meeting_location_type: google_meet
+  timezone: America/New_York
+  buffer_minutes: 0
+  max_future_days: 30
+  status: active
+  created_by: one

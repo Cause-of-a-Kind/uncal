@@ -44,3 +44,13 @@ old_one:
   invitee_email: old@visitor.com
   invitee_timezone: America/New_York
   status: confirmed
+
+meet_booking:
+  schedule_link: google_meet
+  start_time: <%= Time.utc(2026, 3, 5, 14, 0).iso8601 %>
+  end_time: <%= Time.utc(2026, 3, 5, 14, 30).iso8601 %>
+  invitee_name: Meet Visitor
+  invitee_email: meet@visitor.com
+  invitee_timezone: America/New_York
+  meeting_location_url: https://meet.google.com/abc-defg-hij
+  status: confirmed

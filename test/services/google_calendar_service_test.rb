@@ -46,9 +46,9 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "#create_event calls API with correct parameters and returns event ID" do
+  test "#create_event calls API with correct parameters and returns result hash" do
     with_mock_calendar_service(:create, "event123") do
-      event_id = @service.create_event(
+      result = @service.create_event(
         title: "Meeting with Alice",
         start_time: Time.utc(2026, 3, 1, 14, 0),
         end_time: Time.utc(2026, 3, 1, 15, 0),
@@ -56,19 +56,20 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
         location: "Zoom"
       )
 
-      assert_equal "event123", event_id
+      assert_equal "event123", result[:event_id]
     end
   end
 
-  test "#create_event returns the created event ID" do
+  test "#create_event returns the created event ID in result hash" do
     with_mock_calendar_service(:create, "abc-xyz-123") do
-      event_id = @service.create_event(
+      result = @service.create_event(
         title: "Quick sync",
         start_time: Time.utc(2026, 3, 1, 14, 0),
         end_time: Time.utc(2026, 3, 1, 14, 30)
       )
 
-      assert_equal "abc-xyz-123", event_id
+      assert_equal "abc-xyz-123", result[:event_id]
+      assert_nil result[:meet_url]
     end
   end
 
@@ -226,7 +227,7 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
       service_mock.define_singleton_method(:query_freebusy) { |_req| freebusy_response }
     when :create
       created_event = Google::Apis::CalendarV3::Event.new(id: data)
-      service_mock.define_singleton_method(:insert_event) { |_cal_id, _event| created_event }
+      service_mock.define_singleton_method(:insert_event) { |_cal_id, _event, **_opts| created_event }
     when :error
       service_mock.define_singleton_method(:query_freebusy) { |_req|
         raise Google::Apis::ServerError, "Internal Server Error"

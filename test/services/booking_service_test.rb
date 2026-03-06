@@ -11,7 +11,7 @@ class BookingServiceTest < ActiveSupport::TestCase
     GoogleCalendarService.define_singleton_method(:new) do |user|
       service = Object.new
       service.define_singleton_method(:busy_times) { |_start, _end| [] }
-      service.define_singleton_method(:create_event) { |**_args| "fake_event_id" }
+      service.define_singleton_method(:create_event) { |**_args| { event_id: "fake_event_id", meet_url: nil } }
       service
     end
 
@@ -131,11 +131,35 @@ class BookingServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "stores meet link from creator's GCal event for google_meet links" do
+    meet_link = schedule_links(:google_meet)
+    meet_link.members << @user_one unless meet_link.members.include?(@user_one)
+
+    # Add availability window for the meet link
+    meet_link.availability_windows.create!(day_of_week: 2, start_time: "14:00", end_time: "22:00")
+    meet_link.bookings.destroy_all
+
+    @user_one.update!(google_calendar_connected: true, google_calendar_token: "t", google_calendar_refresh_token: "r", google_calendar_token_expires_at: 1.hour.from_now)
+
+    GoogleCalendarService.define_singleton_method(:new) do |user|
+      service = Object.new
+      service.define_singleton_method(:busy_times) { |_start, _end| [] }
+      service.define_singleton_method(:create_event) { |**_args| { event_id: "meet_event_id", meet_url: "https://meet.google.com/test-link" } }
+      service
+    end
+
+    travel_to Time.utc(2026, 3, 3, 0, 0) do
+      result = BookingService.new(meet_link, valid_slot_params).call
+      assert result.success?
+      assert_equal "https://meet.google.com/test-link", result.booking.meeting_location_url
+    end
+  end
+
   test "does not fail when GCal event creation fails" do
     GoogleCalendarService.define_singleton_method(:new) do |user|
       service = Object.new
       service.define_singleton_method(:busy_times) { |_start, _end| [] }
-      service.define_singleton_method(:create_event) { |**_args| raise "GCal down" }
+      service.define_singleton_method(:create_event) { |**_args| raise StandardError, "GCal down" }
       service
     end
 

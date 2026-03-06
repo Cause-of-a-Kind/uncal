@@ -43,7 +43,7 @@ class GoogleCalendarService
     Rails.cache.delete("gcal_busy/#{user.id}/#{date}/#{date}")
   end
 
-  def create_event(title:, start_time:, end_time:, description: nil, location: nil)
+  def create_event(title:, start_time:, end_time:, description: nil, location: nil, add_conference: false, attendees: [])
     ensure_connected!
 
     refresh_token_if_needed!
@@ -56,8 +56,21 @@ class GoogleCalendarService
       location: location
     )
 
-    result = client.insert_event("primary", event)
-    result.id
+    if add_conference
+      event.conference_data = Google::Apis::CalendarV3::ConferenceData.new(
+        create_request: Google::Apis::CalendarV3::CreateConferenceRequest.new(
+          request_id: SecureRandom.uuid,
+          conference_solution_key: Google::Apis::CalendarV3::ConferenceSolutionKey.new(type: "hangoutsMeet")
+        )
+      )
+    end
+
+    if attendees.any?
+      event.attendees = attendees.map { |email| Google::Apis::CalendarV3::EventAttendee.new(email: email) }
+    end
+
+    result = client.insert_event("primary", event, conference_data_version: add_conference ? 1 : 0)
+    { event_id: result.id, meet_url: result.hangout_link }
   rescue NotConnectedError, TokenRevokedError
     raise
   rescue => e

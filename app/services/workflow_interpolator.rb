@@ -14,7 +14,12 @@ class WorkflowInterpolator
       when "meeting_date"     then @booking.start_time.in_time_zone(@timezone).strftime("%B %-d, %Y")
       when "meeting_time"     then @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p")
       when "meeting_duration" then @link.meeting_duration_minutes.to_s
-      when "meeting_location" then @link.meeting_location_value.to_s
+      when "meeting_location"
+        if @link.meeting_location_type == "google_meet"
+          @booking.meeting_location_url.to_s
+        else
+          @link.meeting_location_value.to_s
+        end
       when "host_names"       then @link.members.map(&:name).join(", ")
       else match
       end

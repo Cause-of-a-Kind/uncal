@@ -12,7 +12,9 @@
     <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
       <span><%= @link.meeting_duration_minutes %> minutes</span>
       <span>
-        <% if @link.meeting_location_type == "link" %>
+        <% if @link.meeting_location_type == "google_meet" %>
+          Google Meet (link provided after booking)
+        <% elsif @link.meeting_location_type == "link" %>
           Video call
         <% else %>
           <%= @link.meeting_location_value %>

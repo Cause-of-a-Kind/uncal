@@ -52,6 +52,9 @@ gem "redcarpet"
 # CSV generation (removed from default gems in Ruby 3.4)
 gem "csv"
 
+# .ics calendar file generation [https://github.com/icalendar/icalendar]
+gem "icalendar"
+
 # Google Calendar API [https://github.com/googleapis/google-api-ruby-client]
 gem "google-apis-calendar_v3"
 

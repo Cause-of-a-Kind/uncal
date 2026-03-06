@@ -35,7 +35,7 @@
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Location Type</dt>
-        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.meeting_location_type.capitalize %></dd>
+        <dd class="mt-1 text-sm text-gray-900"><%= @schedule_link.meeting_location_type == "google_meet" ? "Google Meet" : @schedule_link.meeting_location_type.capitalize %></dd>
       </div>
       <% if @schedule_link.meeting_location_value.present? %>
         <div>

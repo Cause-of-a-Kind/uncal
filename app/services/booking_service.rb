@@ -62,17 +62,32 @@ class BookingService
   private
 
   def create_calendar_events(booking)
-    @link.members.select(&:google_calendar_connected?).each do |member|
+    is_meet = @link.meeting_location_type == "google_meet"
+    creator = @link.created_by
+
+    connected_members = @link.members.select(&:google_calendar_connected?)
+    sorted_members = connected_members.sort_by { |m| m == creator ? 0 : 1 }
+
+    sorted_members.each do |member|
       begin
         service = GoogleCalendarService.new(member)
-        event_id = service.create_event(
+        attendee_emails = (is_meet && member == creator) ? [ booking.invitee_email ] : []
+
+        result = service.create_event(
           title: "#{@link.meeting_name} with #{booking.invitee_name}",
           start_time: booking.start_time,
           end_time: booking.end_time,
           description: booking.invitee_notes,
-          location: @link.meeting_location_value
+          location: is_meet ? booking.meeting_location_url : @link.meeting_location_value,
+          add_conference: is_meet && member == creator,
+          attendees: attendee_emails
         )
-        booking.update!(google_event_id: event_id) if event_id
+
+        booking.update!(google_event_id: result[:event_id]) if result[:event_id]
+
+        if is_meet && member == creator && result[:meet_url].present?
+          booking.update!(meeting_location_url: result[:meet_url])
+        end
       rescue => e
         Rails.logger.error "Failed to create GCal event for member #{member.id}: #{e.message}"
       end

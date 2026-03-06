@@ -8,7 +8,8 @@ Meeting: <%= @link.meeting_name %>
 Date: <%= @booking.start_time.in_time_zone(@timezone).strftime("%A, %B %-d, %Y") %>
 Time: <%= @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> - <%= @booking.end_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> (<%= @timezone.name %>)
 Duration: <%= @link.meeting_duration_minutes %> minutes
-<% if @link.meeting_location_value.present? %>Location: <%= @link.meeting_location_value %>
+<% location = @booking.meeting_location_url.presence || @link.meeting_location_value %><% if location.present? %>
+Location: <%= location %>
 <% end %>With: <%= @members.map(&:name).to_sentence %>
 
 Need to cancel? Visit: <%= @cancellation_url %>

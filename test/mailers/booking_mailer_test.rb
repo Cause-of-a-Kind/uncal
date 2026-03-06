@@ -48,6 +48,21 @@ class BookingMailerTest < ActionMailer::TestCase
     assert_match "email-wrapper", html
   end
 
+  test "confirmation includes ics attachment" do
+    email = BookingMailer.confirmation(@booking)
+    ics_attachment = email.attachments["meeting.ics"]
+    assert_not_nil ics_attachment, "Expected .ics attachment"
+    assert_match "text/calendar", ics_attachment.content_type
+    assert_match "BEGIN:VCALENDAR", ics_attachment.body.to_s
+    assert_match "BEGIN:VEVENT", ics_attachment.body.to_s
+  end
+
+  test "confirmation ics includes meeting details" do
+    email = BookingMailer.confirmation(@booking)
+    ics_body = email.attachments["meeting.ics"].body.to_s
+    assert_match @link.meeting_name, ics_body
+  end
+
   test "cancellation sent to invitee email" do
     email = BookingMailer.cancellation(@booking)
     assert_equal [ @booking.invitee_email ], email.to

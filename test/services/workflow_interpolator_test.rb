@@ -52,7 +52,20 @@ class WorkflowInterpolatorTest < ActiveSupport::TestCase
   end
 
   test "handles empty location" do
-    @booking.schedule_link.update!(meeting_location_value: nil)
+    @booking.schedule_link.update!(meeting_location_type: "google_meet", meeting_location_value: nil)
     assert_equal "", @interpolator.interpolate("{{meeting_location}}")
+  end
+
+  test "interpolates meeting_location for google_meet type" do
+    booking = bookings(:meet_booking)
+    interpolator = WorkflowInterpolator.new(booking)
+    assert_equal "https://meet.google.com/abc-defg-hij", interpolator.interpolate("{{meeting_location}}")
+  end
+
+  test "interpolates empty string for google_meet with no url" do
+    booking = bookings(:meet_booking)
+    booking.update!(meeting_location_url: nil)
+    interpolator = WorkflowInterpolator.new(booking)
+    assert_equal "", interpolator.interpolate("{{meeting_location}}")
   end
 end

@@ -38,6 +38,7 @@ module Admin
       other_link = ScheduleLink.create!(
         name: "Private", meeting_name: "Private Call",
         meeting_duration_minutes: 30, meeting_location_type: "link",
+        meeting_location_value: "https://zoom.us/j/999",
         timezone: "Etc/UTC", buffer_minutes: 0, max_future_days: 30,
         created_by: users(:two)
       )

@@ -10,6 +10,12 @@ class BookingMailer < ApplicationMailer
       token: cancellation_token(@booking)
     )
 
+    ics_data = IcsGenerator.new(booking).generate
+    attachments["meeting.ics"] = {
+      mime_type: "text/calendar; method=REQUEST",
+      content: ics_data
+    }
+
     mail(
       to: @booking.invitee_email,
       subject: "Confirmed: #{@link.meeting_name}"

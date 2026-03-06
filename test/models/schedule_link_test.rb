@@ -67,11 +67,32 @@ class ScheduleLinkTest < ActiveSupport::TestCase
     assert_includes link.errors[:max_bookings_per_day], "must be greater than 0"
   end
 
-  test "meeting_location_type must be link or physical" do
+  test "meeting_location_type must be link, physical, or google_meet" do
     link = schedule_links(:one)
     link.meeting_location_type = "phone"
     assert_not link.valid?
     assert_includes link.errors[:meeting_location_type], "is not included in the list"
+
+    link.meeting_location_type = "google_meet"
+    link.meeting_location_value = nil
+    assert link.valid?
+  end
+
+  test "google_meet valid without meeting_location_value" do
+    link = schedule_links(:google_meet)
+    assert_nil link.meeting_location_value
+    assert link.valid?
+  end
+
+  test "link and physical require meeting_location_value" do
+    link = schedule_links(:one)
+    link.meeting_location_value = nil
+    assert_not link.valid?
+    assert_includes link.errors[:meeting_location_value], "can't be blank"
+
+    link.meeting_location_type = "physical"
+    link.meeting_location_value = nil
+    assert_not link.valid?
   end
 
   test "status defaults to active" do
@@ -92,6 +113,7 @@ class ScheduleLinkTest < ActiveSupport::TestCase
       meeting_name: "Meeting",
       meeting_duration_minutes: 30,
       meeting_location_type: "link",
+      meeting_location_value: "https://zoom.us/j/test",
       timezone: "America/New_York",
       created_by: users(:one)
     )

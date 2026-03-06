@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_26_204440) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_012812) do
   create_table "availability_windows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_of_week", null: false
@@ -31,6 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_26_204440) do
     t.string "invitee_name", null: false
     t.text "invitee_notes"
     t.string "invitee_timezone", null: false
+    t.string "meeting_location_url"
     t.integer "schedule_link_id", null: false
     t.datetime "start_time", null: false
     t.string "status", default: "confirmed", null: false

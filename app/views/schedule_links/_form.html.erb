@@ -10,21 +10,32 @@
     <%= render "ui/form_field", form: form, field: :meeting_name, label: "Meeting Name", required: true, hint: "What guests see when booking." %>
     <%= render "ui/form_field", form: form, field: :meeting_duration_minutes, type: :select, label: "Duration", options: duration_options, required: true %>
 
-    <div class="mb-4">
+    <div class="mb-4" data-controller="location-type">
       <span class="block text-sm font-medium text-gray-700 mb-1">Location Type</span>
-      <div class="flex gap-4">
+      <div class="flex flex-wrap gap-4">
         <label class="inline-flex items-center gap-2">
-          <%= form.radio_button :meeting_location_type, "link", class: "text-gray-900 focus:ring-gray-900" %>
+          <%= form.radio_button :meeting_location_type, "link", class: "text-gray-900 focus:ring-gray-900", data: { action: "location-type#change", location_type_target: "radio" } %>
           <span class="text-sm text-gray-700">Video / Link</span>
         </label>
         <label class="inline-flex items-center gap-2">
-          <%= form.radio_button :meeting_location_type, "physical", class: "text-gray-900 focus:ring-gray-900" %>
+          <%= form.radio_button :meeting_location_type, "physical", class: "text-gray-900 focus:ring-gray-900", data: { action: "location-type#change", location_type_target: "radio" } %>
           <span class="text-sm text-gray-700">Physical Address</span>
         </label>
+        <% if Current.user.google_calendar_connected? %>
+          <label class="inline-flex items-center gap-2">
+            <%= form.radio_button :meeting_location_type, "google_meet", class: "text-gray-900 focus:ring-gray-900", data: { action: "location-type#change", location_type_target: "radio" } %>
+            <span class="text-sm text-gray-700">Google Meet</span>
+          </label>
+        <% end %>
+      </div>
+
+      <div data-location-type-target="locationField">
+        <%= render "ui/form_field", form: form, field: :meeting_location_value, label: "Location", placeholder: "https://zoom.us/j/... or address" %>
+      </div>
+      <div data-location-type-target="meetHint" class="hidden mt-2">
+        <p class="text-sm text-gray-500">A Google Meet link will be generated automatically for each booking.</p>
       </div>
     </div>
-
-    <%= render "ui/form_field", form: form, field: :meeting_location_value, label: "Location", placeholder: "https://zoom.us/j/... or address" %>
   <% end %>
 
   <%= render layout: "ui/card", locals: { title: "Scheduling Rules", description: "Control when and how often meetings can be booked." } do %>
