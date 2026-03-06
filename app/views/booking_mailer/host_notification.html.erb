@@ -1,0 +1,51 @@
+<h1>New Booking</h1>
+
+<p>Hi <%= @host.name %>,</p>
+
+<p>You have a new booking:</p>
+
+<table>
+  <tr>
+    <td><strong>Meeting:</strong></td>
+    <td><%= @link.meeting_name %></td>
+  </tr>
+  <tr>
+    <td><strong>Invitee:</strong></td>
+    <td><%= @booking.invitee_name %> (<%= @booking.invitee_email %>)</td>
+  </tr>
+  <tr>
+    <td><strong>Date:</strong></td>
+    <td><%= @booking.start_time.in_time_zone(@timezone).strftime("%A, %B %-d, %Y") %></td>
+  </tr>
+  <tr>
+    <td><strong>Time:</strong></td>
+    <td>
+      <%= @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> &ndash;
+      <%= @booking.end_time.in_time_zone(@timezone).strftime("%-I:%M %p") %>
+      (<%= @timezone.name %>)
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Duration:</strong></td>
+    <td><%= @link.meeting_duration_minutes %> minutes</td>
+  </tr>
+  <% location = @booking.meeting_location_url.presence || @link.meeting_location_value %>
+  <% if location.present? %>
+    <tr>
+      <td><strong>Location:</strong></td>
+      <td>
+        <% if location.start_with?("http") %>
+          <%= link_to location, location, target: "_blank", rel: "noopener" %>
+        <% else %>
+          <%= location %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+  <% if @booking.invitee_notes.present? %>
+    <tr>
+      <td><strong>Notes:</strong></td>
+      <td><%= @booking.invitee_notes %></td>
+    </tr>
+  <% end %>
+</table>

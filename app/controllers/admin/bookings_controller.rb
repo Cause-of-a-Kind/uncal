@@ -57,6 +57,10 @@ module Admin
 
       BookingMailer.cancellation(@booking).deliver_later
 
+      @booking.schedule_link.members.each do |member|
+        BookingMailer.host_cancellation(@booking, member).deliver_later
+      end
+
       redirect_to admin_booking_path(@booking), notice: "Booking cancelled."
     end
 

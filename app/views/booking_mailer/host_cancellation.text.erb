@@ -1,0 +1,10 @@
+Booking Cancelled
+
+Hi <%= @host.name %>,
+
+A booking has been cancelled:
+
+Meeting: <%= @link.meeting_name %>
+Invitee: <%= @booking.invitee_name %> (<%= @booking.invitee_email %>)
+Date: <%= @booking.start_time.in_time_zone(@timezone).strftime("%A, %B %-d, %Y") %>
+Time: <%= @booking.start_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> - <%= @booking.end_time.in_time_zone(@timezone).strftime("%-I:%M %p") %> (<%= @timezone.name %>)

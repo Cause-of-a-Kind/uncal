@@ -46,8 +46,13 @@ class BookingService
     # Invalidate GCal busy caches
     invalidate_caches(booking)
 
-    # Send confirmation email
+    # Send confirmation email to invitee
     BookingMailer.confirmation(booking).deliver_later
+
+    # Notify hosts
+    @link.members.each do |member|
+      BookingMailer.host_notification(booking, member).deliver_later
+    end
 
     # Schedule workflow emails
     WorkflowScheduler.new(booking).schedule_all

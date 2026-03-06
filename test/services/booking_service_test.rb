@@ -123,11 +123,22 @@ class BookingServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "enqueues confirmation email" do
+  test "enqueues confirmation and host notification emails" do
     travel_to Time.utc(2026, 3, 3, 0, 0) do
-      assert_enqueued_emails 1 do
+      # 1 invitee confirmation + 1 host notification (link has 1 member)
+      assert_enqueued_emails 2 do
         BookingService.new(@link, valid_slot_params).call
       end
+    end
+  end
+
+  test "enqueues host notification for each member" do
+    travel_to Time.utc(2026, 3, 3, 0, 0) do
+      result = BookingService.new(@link, valid_slot_params).call
+      assert result.success?
+
+      host = @link.members.first
+      assert_enqueued_email_with BookingMailer, :host_notification, args: [ result.booking, host ]
     end
   end
 

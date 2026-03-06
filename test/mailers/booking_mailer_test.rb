@@ -63,6 +63,65 @@ class BookingMailerTest < ActionMailer::TestCase
     assert_match @link.meeting_name, ics_body
   end
 
+  # Host notification tests
+
+  test "host_notification sent to host email" do
+    host = users(:one)
+    email = BookingMailer.host_notification(@booking, host)
+    assert_equal [ host.email_address ], email.to
+  end
+
+  test "host_notification subject includes meeting name and invitee" do
+    host = users(:one)
+    email = BookingMailer.host_notification(@booking, host)
+    assert_equal "New booking: #{@link.meeting_name} with #{@booking.invitee_name}", email.subject
+  end
+
+  test "host_notification body includes booking details" do
+    host = users(:one)
+    email = BookingMailer.host_notification(@booking, host)
+    html = email.html_part.body.to_s
+
+    assert_match @link.meeting_name, html
+    assert_match @booking.invitee_name, html
+    assert_match @booking.invitee_email, html
+    assert_match host.name, html
+  end
+
+  test "host_notification shows time in host timezone" do
+    host = users(:one) # America/New_York
+    email = BookingMailer.host_notification(@booking, host)
+    html = email.html_part.body.to_s
+
+    expected_tz = ActiveSupport::TimeZone[host.timezone]
+    assert_match expected_tz.name, html
+  end
+
+  test "host_cancellation sent to host email" do
+    host = users(:one)
+    email = BookingMailer.host_cancellation(@booking, host)
+    assert_equal [ host.email_address ], email.to
+  end
+
+  test "host_cancellation subject includes meeting name and invitee" do
+    host = users(:one)
+    email = BookingMailer.host_cancellation(@booking, host)
+    assert_equal "Cancelled: #{@link.meeting_name} with #{@booking.invitee_name}", email.subject
+  end
+
+  test "host_cancellation body includes booking details" do
+    host = users(:one)
+    email = BookingMailer.host_cancellation(@booking, host)
+    html = email.html_part.body.to_s
+
+    assert_match @link.meeting_name, html
+    assert_match @booking.invitee_name, html
+    assert_match @booking.invitee_email, html
+    assert_match "Cancelled", html
+  end
+
+  # Invitee cancellation tests
+
   test "cancellation sent to invitee email" do
     email = BookingMailer.cancellation(@booking)
     assert_equal [ @booking.invitee_email ], email.to

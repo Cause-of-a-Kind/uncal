@@ -90,9 +90,17 @@ module Admin
       assert_equal "cancelled", booking.reload.status
     end
 
-    test "cancel sends cancellation email" do
+    test "cancel sends cancellation email to invitee" do
       booking = bookings(:upcoming_one)
       assert_enqueued_email_with BookingMailer, :cancellation, args: [ booking ] do
+        patch cancel_admin_booking_path(booking)
+      end
+    end
+
+    test "cancel sends cancellation email to hosts" do
+      booking = bookings(:upcoming_one)
+      host = booking.schedule_link.members.first
+      assert_enqueued_email_with BookingMailer, :host_cancellation, args: [ booking, host ] do
         patch cancel_admin_booking_path(booking)
       end
     end

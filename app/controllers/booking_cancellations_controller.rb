@@ -36,6 +36,12 @@ class BookingCancellationsController < ApplicationController
       GoogleCalendarService.invalidate_busy_cache(member, date)
     end
 
+    BookingMailer.cancellation(@booking).deliver_later
+
+    @booking.schedule_link.members.each do |member|
+      BookingMailer.host_cancellation(@booking, member).deliver_later
+    end
+
     redirect_to booking_cancellation_path(id: @booking.id, token: params[:token]), notice: "Your booking has been cancelled."
   end
 

@@ -22,6 +22,30 @@ class BookingMailer < ApplicationMailer
     )
   end
 
+  def host_notification(booking, host)
+    @booking = booking
+    @link = booking.schedule_link
+    @host = host
+    @timezone = ActiveSupport::TimeZone[host.timezone]
+
+    mail(
+      to: host.email_address,
+      subject: "New booking: #{@link.meeting_name} with #{@booking.invitee_name}"
+    )
+  end
+
+  def host_cancellation(booking, host)
+    @booking = booking
+    @link = booking.schedule_link
+    @host = host
+    @timezone = ActiveSupport::TimeZone[host.timezone]
+
+    mail(
+      to: host.email_address,
+      subject: "Cancelled: #{@link.meeting_name} with #{@booking.invitee_name}"
+    )
+  end
+
   def cancellation(booking)
     @booking = booking
     @link = booking.schedule_link
