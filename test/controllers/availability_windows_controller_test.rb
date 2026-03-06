@@ -46,13 +46,13 @@ class AvailabilityWindowsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create with invalid params returns error" do
-    # Overlaps with fixture one_monday_morning (14:00-17:00 UTC)
+    # Overlaps with fixture one_monday_morning (09:00-12:00 local)
     assert_no_difference "AvailabilityWindow.count" do
       post schedule_link_availability_windows_path(@link), params: {
         availability_window: {
           day_of_week: 0,
-          start_time: "15:00",
-          end_time: "19:00"
+          start_time: "10:00",
+          end_time: "14:00"
         }
       }, as: :turbo_stream
     end
@@ -111,8 +111,8 @@ class AvailabilityWindowsControllerTest < ActionDispatch::IntegrationTest
     link_two = schedule_links(:two)
     link_two.update!(created_by: @user)
 
-    # Link one has windows on day 0 (14:00-17:00, 18:00-22:00 UTC) and day 2 (14:00-22:00 UTC)
-    # Link two has windows on day 0 (08:00-11:00 UTC) and day 1 (10:00-16:00 UTC)
+    # Link one has windows on day 0 (09:00-12:00, 13:00-17:00) and day 2 (09:00-17:00)
+    # Link two has windows on day 0 (08:00-11:00) and day 1 (10:00-16:00)
     initial_count = @link.availability_windows.count
     assert_equal 3, initial_count
 
@@ -123,8 +123,10 @@ class AvailabilityWindowsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to schedule_link_availability_windows_path(@link)
 
-    # Should have 3 original + 2 new (both day 0 and day 1 from link two don't overlap)
-    assert_equal 5, @link.availability_windows.count
+    # Day 0 from link two (08:00-11:00) overlaps with link one's day 0 (09:00-12:00), so skipped
+    # Day 1 from link two (10:00-16:00) has no match on link one, so added
+    # Total: 3 original + 1 new = 4
+    assert_equal 4, @link.availability_windows.count
   end
 
   test "cannot copy from a link user did not create" do

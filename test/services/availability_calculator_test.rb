@@ -290,12 +290,12 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
   test "DST spring-forward: window contracts by 1hr in UTC" do
     # March 8, 2026 is when US springs forward (EST→EDT)
     # 2026-03-08 is a Sunday — day_of_week 6 in our convention ((0+6)%7 = 6)
-    # Create a Sunday window for testing (09:00-17:00 ET = 14:00-22:00 UTC)
+    # Create a Sunday window for testing (09:00-17:00 ET, stored as local times)
     AvailabilityWindow.create!(
       schedule_link: @link_one,
       day_of_week: 6,  # Sunday
-      start_time: "14:00",
-      end_time: "22:00"
+      start_time: "09:00",
+      end_time: "17:00"
     )
 
     # On March 7 (before DST): 09:00 EST = 14:00 UTC, 17:00 EST = 22:00 UTC (8hr window)
@@ -313,12 +313,12 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
   end
 
   test "late-night window where UTC conversion crosses date boundary" do
-    # Create a window at 22:00-23:00 ET for Wednesday (= 03:00-04:00 UTC next day)
+    # Create a window at 22:00-23:00 ET for Wednesday (stored as local time)
     AvailabilityWindow.create!(
       schedule_link: @link_one,
       day_of_week: 2,  # Wednesday
-      start_time: "03:00",
-      end_time: "04:00"
+      start_time: "22:00",
+      end_time: "23:00"
     )
 
     # 22:00 EST on March 4 = 03:00 UTC on March 5

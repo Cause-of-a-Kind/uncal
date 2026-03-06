@@ -136,7 +136,7 @@ class BookingServiceTest < ActiveSupport::TestCase
     meet_link.members << @user_one unless meet_link.members.include?(@user_one)
 
     # Add availability window for the meet link
-    meet_link.availability_windows.create!(day_of_week: 2, start_time: "14:00", end_time: "22:00")
+    meet_link.availability_windows.create!(day_of_week: 2, start_time: "09:00", end_time: "17:00")
     meet_link.bookings.destroy_all
 
     @user_one.update!(google_calendar_connected: true, google_calendar_token: "t", google_calendar_refresh_token: "r", google_calendar_token_expires_at: 1.hour.from_now)
