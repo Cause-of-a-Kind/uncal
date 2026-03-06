@@ -7,12 +7,14 @@ class DashboardController < ApplicationController
 
     @upcoming_bookings = user_bookings
       .where(status: "confirmed")
-      .where(start_time: Time.current..7.days.from_now)
+      .where("start_time >= ?", Time.current)
       .order(start_time: :asc)
+      .limit(10)
 
     @recent_bookings = user_bookings
-      .where(start_time: 7.days.ago..Time.current)
+      .where("start_time < ?", Time.current)
       .order(start_time: :desc)
+      .limit(5)
 
     @bookings_this_week = user_bookings
       .where(status: "confirmed")
