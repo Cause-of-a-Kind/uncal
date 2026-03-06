@@ -333,6 +333,39 @@ class AvailabilityCalculatorTest < ActiveSupport::TestCase
     end
   end
 
+  test "calculator produces correct UTC slots regardless of user timezone" do
+    # Wednesday window on link_one: 09:00-17:00 ET (America/New_York)
+    # March 4, 2026 is EST (UTC-5), so 09:00 ET = 14:00 UTC
+    date = Date.new(2026, 3, 4)
+    @link_one.bookings.destroy_all
+
+    travel_to Time.utc(2026, 3, 3, 0, 0) do
+      # Run calculator with user timezone set to Eastern
+      eastern_result = Time.use_zone("America/New_York") do
+        AvailabilityCalculator.new(@link_one, date).available_slots
+      end
+
+      # Run calculator with user timezone set to UTC
+      utc_result = Time.use_zone("Etc/UTC") do
+        AvailabilityCalculator.new(@link_one, date).available_slots
+      end
+
+      # Run calculator with user timezone set to Tokyo
+      tokyo_result = Time.use_zone("Asia/Tokyo") do
+        AvailabilityCalculator.new(@link_one, date).available_slots
+      end
+
+      # All should produce identical UTC slots
+      assert_equal eastern_result, utc_result, "Eastern and UTC user timezones should produce same slots"
+      assert_equal utc_result, tokyo_result, "UTC and Tokyo user timezones should produce same slots"
+
+      # First slot should always be 14:00 UTC (09:00 ET)
+      assert_equal Time.utc(2026, 3, 4, 14, 0), eastern_result.first[:start_time]
+      assert_equal Time.utc(2026, 3, 4, 14, 0), utc_result.first[:start_time]
+      assert_equal Time.utc(2026, 3, 4, 14, 0), tokyo_result.first[:start_time]
+    end
+  end
+
   test "today's date filters out past slots" do
     # Wednesday March 4, travel to mid-day (15:00 UTC = 10:00 ET)
     date = Date.new(2026, 3, 4)

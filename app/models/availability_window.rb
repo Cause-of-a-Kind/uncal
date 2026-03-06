@@ -1,4 +1,6 @@
 class AvailabilityWindow < ApplicationRecord
+  self.skip_time_zone_conversion_for_attributes = [ :start_time, :end_time ]
+
   belongs_to :schedule_link
 
   validates :day_of_week, inclusion: { in: 0..6 }

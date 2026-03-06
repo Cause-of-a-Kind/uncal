@@ -16,6 +16,6 @@ module AvailabilityWindowsHelper
   end
 
   def format_window_time(time)
-    time.utc.strftime("%-l:%M %p")
+    time.strftime("%-l:%M %p")
   end
 end

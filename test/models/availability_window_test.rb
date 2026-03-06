@@ -119,6 +119,36 @@ class AvailabilityWindowTest < ActiveSupport::TestCase
     assert_includes link.availability_windows, availability_windows(:one_wednesday)
   end
 
+  test "stored times are not affected by user timezone" do
+    # Create a window with start_time "12:00" while Time.zone is Eastern
+    Time.use_zone("America/New_York") do
+      window = AvailabilityWindow.create!(
+        schedule_link: schedule_links(:one),
+        day_of_week: 1,
+        start_time: "12:00",
+        end_time: "17:00"
+      )
+
+      # Read it back in Eastern — should still be 12:00
+      assert_equal "12:00 PM", window.reload.start_time.strftime("%-l:%M %p")
+      assert_equal "5:00 PM", window.end_time.strftime("%-l:%M %p")
+    end
+
+    # Read it back in UTC — should still be 12:00
+    Time.use_zone("Etc/UTC") do
+      window = AvailabilityWindow.where(schedule_link: schedule_links(:one), day_of_week: 1).last
+      assert_equal "12:00 PM", window.start_time.strftime("%-l:%M %p")
+      assert_equal "5:00 PM", window.end_time.strftime("%-l:%M %p")
+    end
+
+    # Read it back in Tokyo — should still be 12:00
+    Time.use_zone("Asia/Tokyo") do
+      window = AvailabilityWindow.where(schedule_link: schedule_links(:one), day_of_week: 1).last
+      assert_equal "12:00 PM", window.start_time.strftime("%-l:%M %p")
+      assert_equal "5:00 PM", window.end_time.strftime("%-l:%M %p")
+    end
+  end
+
   test "destroying schedule_link destroys availability_windows" do
     link = schedule_links(:one)
     assert_difference "AvailabilityWindow.count", -3 do
