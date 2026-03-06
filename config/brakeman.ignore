@@ -1,0 +1,10 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "ba4a65bd5c3d64c0ca93d1ca96226c1f20898523c485f92123eb5b47a094d5b1",
+      "note": "URLs are admin-entered or Google-generated, not user-controlled XSS risk"
+    }
+  ],
+  "updated": "2026-03-06",
+  "brakeman_version": "8.0.4"
+}

@@ -79,8 +79,8 @@ class AvailabilityCalculator
     return [] if windows.empty?
 
     windows.map do |window|
-      local_start = window.start_time.in_time_zone(@timezone).strftime('%H:%M')
-      local_end = window.end_time.in_time_zone(@timezone).strftime('%H:%M')
+      local_start = window.start_time.in_time_zone(@timezone).strftime("%H:%M")
+      local_end = window.end_time.in_time_zone(@timezone).strftime("%H:%M")
       start_utc = @timezone.parse("#{@date} #{local_start}").utc
       end_utc = @timezone.parse("#{@date} #{local_end}").utc
       [ start_utc, end_utc ]
