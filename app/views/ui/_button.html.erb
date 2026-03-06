@@ -19,8 +19,10 @@
   css += " opacity-50 cursor-not-allowed" if disabled
 %>
 
-<% if href %>
-  <%= link_to label, href, class: css, method: method, data: data %>
+<% if href && method && method.to_s != "get" %>
+  <%= button_to label, href, method: method, class: css, data: data, form: { class: "inline" } %>
+<% elsif href %>
+  <%= link_to label, href, class: css, data: data %>
 <% else %>
   <button type="<%= type %>" class="<%= css %>" <%= "disabled" if disabled %> <% data.each do |k, v| %>data-<%= k %>="<%= v %>"<% end %>>
     <%= label %>
