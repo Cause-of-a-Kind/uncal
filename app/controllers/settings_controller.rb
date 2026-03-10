@@ -1,8 +1,8 @@
 class SettingsController < ApplicationController
   def edit
     @user = Current.user
-    @team_members = User.order(:name)
-    @pending_invitations = Invitation.pending.order(created_at: :desc)
+    @team_members = scope_team_members
+    @pending_invitations = scope_invitations
   end
 
   def update
@@ -11,13 +11,21 @@ class SettingsController < ApplicationController
     if @user.update(settings_params)
       redirect_to edit_settings_path, notice: "Settings updated."
     else
-      @team_members = User.order(:name)
-      @pending_invitations = Invitation.pending.order(created_at: :desc)
+      @team_members = scope_team_members
+      @pending_invitations = scope_invitations
       render :edit, status: :unprocessable_entity
     end
   end
 
   private
+
+  def scope_team_members
+    User.order(:name)
+  end
+
+  def scope_invitations
+    Invitation.pending.order(created_at: :desc)
+  end
 
   def settings_params
     params.require(:user).permit(:name, :email_address, :timezone)

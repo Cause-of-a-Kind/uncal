@@ -5,6 +5,21 @@
 %>
 
 <%= form_with model: schedule_link, class: "space-y-6" do |form| %>
+  <% if schedule_link.errors.any? %>
+    <div class="rounded-lg bg-red-50 p-4 ring-1 ring-inset ring-red-200">
+      <div class="flex">
+        <div class="text-sm text-red-700">
+          <p class="font-medium"><%= pluralize(schedule_link.errors.count, "error") %> prevented this schedule link from being saved:</p>
+          <ul class="mt-2 list-disc pl-5 space-y-1">
+            <% schedule_link.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <%= render layout: "ui/card", locals: { title: "Meeting Details", description: "Configure what guests will see when booking." } do %>
     <%= render "ui/form_field", form: form, field: :name, label: "Link Name", required: true, hint: "Internal name for your reference." %>
     <%= render "ui/form_field", form: form, field: :meeting_name, label: "Meeting Name", required: true, hint: "What guests see when booking." %>

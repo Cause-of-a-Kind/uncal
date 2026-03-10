@@ -41,14 +41,14 @@ class AvailabilityWindowsController < ApplicationController
   end
 
   def copy
-    @other_links = Current.user.created_schedule_links
+    @other_links = scope_created_schedule_links
       .where.not(id: @schedule_link.id)
       .joins(:availability_windows)
       .distinct
   end
 
   def perform_copy
-    source_link = Current.user.created_schedule_links.find(params[:source_link_id])
+    source_link = scope_created_schedule_links.find(params[:source_link_id])
     source_windows = source_link.availability_windows
 
     if params[:mode] == "replace"
@@ -75,6 +75,10 @@ class AvailabilityWindowsController < ApplicationController
   end
 
   private
+
+  def scope_created_schedule_links
+    Current.user.created_schedule_links
+  end
 
   def set_schedule_link
     @schedule_link = ScheduleLink.find(params[:schedule_link_id])

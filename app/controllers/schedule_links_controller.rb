@@ -3,12 +3,7 @@ class ScheduleLinksController < ApplicationController
   before_action :authorize_member, only: %i[edit update destroy]
 
   def index
-    @schedule_links = ScheduleLink.active
-      .joins(:schedule_link_members)
-      .where(schedule_link_members: { user_id: Current.user.id })
-      .or(ScheduleLink.active.where(created_by: Current.user))
-      .distinct
-      .order(created_at: :desc)
+    @schedule_links = scope_schedule_links
   end
 
   def show
@@ -19,8 +14,8 @@ class ScheduleLinksController < ApplicationController
 
   def new
     @schedule_link = ScheduleLink.new(timezone: Current.user.timezone)
-    @users = User.where.not(id: Current.user.id)
-    @workflows = Current.user.workflows.active
+    @users = scope_other_users
+    @workflows = scope_workflows
   end
 
   def create
@@ -33,15 +28,15 @@ class ScheduleLinksController < ApplicationController
       add_selected_members
       redirect_to @schedule_link, notice: "Schedule link created."
     else
-      @users = User.where.not(id: Current.user.id)
-      @workflows = Current.user.workflows.active
+      @users = scope_other_users
+      @workflows = scope_workflows
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @users = User.where.not(id: Current.user.id)
-    @workflows = Current.user.workflows.active
+    @users = scope_other_users
+    @workflows = scope_workflows
   end
 
   def update
@@ -52,8 +47,8 @@ class ScheduleLinksController < ApplicationController
       sync_members
       redirect_to @schedule_link, notice: "Schedule link updated."
     else
-      @users = User.where.not(id: Current.user.id)
-      @workflows = Current.user.workflows.active
+      @users = scope_other_users
+      @workflows = scope_workflows
       render :edit, status: :unprocessable_entity
     end
   end
@@ -64,6 +59,23 @@ class ScheduleLinksController < ApplicationController
   end
 
   private
+
+  def scope_schedule_links
+    ScheduleLink.active
+      .joins(:schedule_link_members)
+      .where(schedule_link_members: { user_id: Current.user.id })
+      .or(ScheduleLink.active.where(created_by: Current.user))
+      .distinct
+      .order(created_at: :desc)
+  end
+
+  def scope_other_users
+    User.where.not(id: Current.user.id)
+  end
+
+  def scope_workflows
+    Current.user.workflows.active
+  end
 
   def set_schedule_link
     @schedule_link = ScheduleLink.find(params[:id])

@@ -2,7 +2,7 @@ class WorkflowsController < ApplicationController
   before_action :set_workflow, only: %i[show edit update destroy toggle]
 
   def index
-    @workflows = Current.user.workflows.order(created_at: :desc)
+    @workflows = scope_workflows
   end
 
   def new
@@ -10,7 +10,7 @@ class WorkflowsController < ApplicationController
   end
 
   def create
-    @workflow = Current.user.workflows.build(workflow_params)
+    @workflow = build_workflow(workflow_params)
 
     if @workflow.save
       redirect_to @workflow, notice: "Workflow created."
@@ -45,6 +45,14 @@ class WorkflowsController < ApplicationController
   end
 
   private
+
+  def scope_workflows
+    Current.user.workflows.order(created_at: :desc)
+  end
+
+  def build_workflow(attrs)
+    Current.user.workflows.build(attrs)
+  end
 
   def set_workflow
     @workflow = Current.user.workflows.find(params[:id])

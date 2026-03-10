@@ -1,6 +1,6 @@
 class InvitationsController < ApplicationController
   def index
-    @pending_invitations = Invitation.pending.order(created_at: :desc)
+    @pending_invitations = scope_invitations
   end
 
   def new
@@ -19,12 +19,20 @@ class InvitationsController < ApplicationController
   end
 
   def destroy
-    @invitation = Invitation.find(params[:id])
+    @invitation = find_invitation(params[:id])
     @invitation.destroy
     redirect_to invitations_path, notice: "Invitation cancelled.", status: :see_other
   end
 
   private
+
+  def scope_invitations
+    Invitation.pending.order(created_at: :desc)
+  end
+
+  def find_invitation(id)
+    Invitation.find(id)
+  end
 
   def invitation_params
     params.require(:invitation).permit(:email)

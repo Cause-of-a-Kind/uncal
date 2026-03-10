@@ -2,7 +2,7 @@ class ContactsController < ApplicationController
   before_action :set_contact, only: %i[show update]
 
   def index
-    @contacts = Current.user.contacts.order(last_booked_at: :desc)
+    @contacts = scope_contacts.order(last_booked_at: :desc)
     if params[:q].present?
       query = "%#{params[:q]}%"
       @contacts = @contacts.where("name LIKE ? OR email LIKE ?", query, query)
@@ -10,15 +10,13 @@ class ContactsController < ApplicationController
   end
 
   def export
-    contacts = Current.user.contacts.order(last_booked_at: :desc)
+    contacts = scope_contacts.order(last_booked_at: :desc)
     csv = generate_csv(contacts)
     send_data csv, filename: "contacts.csv", type: "text/csv"
   end
 
   def show
-    @bookings = Booking
-      .joins(schedule_link: :schedule_link_members)
-      .where(schedule_link_members: { user_id: Current.user.id })
+    @bookings = scope_bookings
       .where(invitee_email: @contact.email)
       .order(start_time: :desc)
   end
@@ -30,8 +28,18 @@ class ContactsController < ApplicationController
 
   private
 
+  def scope_contacts
+    Current.user.contacts
+  end
+
+  def scope_bookings
+    Booking
+      .joins(schedule_link: :schedule_link_members)
+      .where(schedule_link_members: { user_id: Current.user.id })
+  end
+
   def set_contact
-    @contact = Current.user.contacts.find(params[:id])
+    @contact = scope_contacts.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     head :not_found
   end

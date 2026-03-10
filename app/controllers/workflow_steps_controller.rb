@@ -68,7 +68,11 @@ class WorkflowStepsController < ApplicationController
   private
 
   def set_workflow
-    @workflow = Current.user.workflows.find(params[:workflow_id])
+    @workflow = scope_workflows.find(params[:workflow_id])
+  end
+
+  def scope_workflows
+    Current.user.workflows
   end
 
   def step_params

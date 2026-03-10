@@ -28,16 +28,7 @@ class BookingService
         invitee_notes: @params[:invitee_notes]
       )
 
-      # Find-or-create contacts per member
-      @link.members.each do |member|
-        contact = member.contacts.find_or_initialize_by(email: booking.invitee_email)
-        contact.name = booking.invitee_name
-        contact.last_booked_at = Time.current
-        contact.total_bookings_count = (contact.total_bookings_count || 0) + 1
-        contact.save!
-      end
-
-      booking.update!(contact: @link.created_by.contacts.find_by(email: booking.invitee_email))
+      find_or_create_contacts(booking)
     end
 
     # Create Google Calendar events per connected member (outside transaction, non-blocking)
@@ -97,6 +88,18 @@ class BookingService
         Rails.logger.error "Failed to create GCal event for member #{member.id}: #{e.message}"
       end
     end
+  end
+
+  def find_or_create_contacts(booking)
+    @link.members.each do |member|
+      contact = member.contacts.find_or_initialize_by(email: booking.invitee_email)
+      contact.name = booking.invitee_name
+      contact.last_booked_at = Time.current
+      contact.total_bookings_count = (contact.total_bookings_count || 0) + 1
+      contact.save!
+    end
+
+    booking.update!(contact: @link.created_by.contacts.find_by(email: booking.invitee_email))
   end
 
   def invalidate_caches(booking)

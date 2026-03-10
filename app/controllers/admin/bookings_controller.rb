@@ -3,7 +3,7 @@ module Admin
     before_action :set_booking, only: %i[show cancel]
 
     def index
-      @bookings = user_bookings
+      @bookings = scope_bookings
         .includes(schedule_link: :members)
 
       if params[:schedule_link_id].present?
@@ -23,7 +23,7 @@ module Admin
       end
 
       @bookings = @bookings.order(start_time: :desc)
-      @schedule_links = Current.user.schedule_links
+      @schedule_links = scope_schedule_links
     end
 
     def show
@@ -66,14 +66,18 @@ module Admin
 
     private
 
-    def user_bookings
+    def scope_bookings
       Booking
         .joins(schedule_link: :schedule_link_members)
         .where(schedule_link_members: { user_id: Current.user.id })
     end
 
+    def scope_schedule_links
+      Current.user.schedule_links
+    end
+
     def set_booking
-      @booking = user_bookings.find(params[:id])
+      @booking = scope_bookings.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       head :not_found
     end

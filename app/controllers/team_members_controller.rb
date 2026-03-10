@@ -2,7 +2,7 @@ class TeamMembersController < ApplicationController
   before_action :require_owner
 
   def destroy
-    user = User.find(params[:id])
+    user = find_team_member(params[:id])
 
     if user == Current.user
       redirect_to edit_settings_path, alert: "You cannot remove yourself."
@@ -13,6 +13,10 @@ class TeamMembersController < ApplicationController
   end
 
   private
+
+  def find_team_member(id)
+    User.find(id)
+  end
 
   def require_owner
     unless Current.user.owner?

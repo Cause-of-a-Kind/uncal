@@ -31,8 +31,13 @@ class Invitation < ApplicationRecord
       user = User.new(user_params.merge(email_address: email))
       user.save!
       update!(accepted_at: Time.current)
+      after_accept(user)
       user
     end
+  end
+
+  def after_accept(user)
+    # Hook for extensions (e.g., SaaS account assignment)
   end
 
   private
