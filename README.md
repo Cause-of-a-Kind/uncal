@@ -80,6 +80,9 @@ bin/rails credentials:edit
 Add your SMTP and Google Calendar credentials:
 
 ```yaml
+mailer:
+  from: "noreply@your-domain.com"
+
 smtp:
   user_name: your-smtp-username
   password: your-smtp-password
