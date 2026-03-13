@@ -67,7 +67,7 @@ class BookingService
     sorted_members.each do |member|
       begin
         service = GoogleCalendarService.new(member)
-        attendee_emails = (is_meet && member == creator) ? [ booking.invitee_email ] : []
+        attendee_emails = (member == creator) ? [ booking.invitee_email ] : []
 
         result = service.create_event(
           title: "#{@link.meeting_name} with #{booking.invitee_name}",
