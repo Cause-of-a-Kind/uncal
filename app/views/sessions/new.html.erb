@@ -1,5 +1,5 @@
 <%= render layout: "ui/card", locals: { title: "Sign in to your account" } do %>
-  <%= form_with url: session_url do |form| %>
+  <%= form_with url: session_url, data: { turbo: false } do |form| %>
     <%= render "ui/form_field", form: form, field: :email_address, type: :email, required: true, placeholder: "you@example.com" %>
     <%= render "ui/form_field", form: form, field: :password, type: :password, required: true, placeholder: "Your password" %>
 
