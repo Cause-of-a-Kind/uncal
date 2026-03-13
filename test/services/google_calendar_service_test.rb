@@ -60,6 +60,20 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "#create_event includes UTC timezone on event times" do
+    captured_event = nil
+    with_mock_calendar_service(:create, "tz-test", ->(event) { captured_event = event }) do
+      @service.create_event(
+        title: "TZ Test",
+        start_time: Time.utc(2026, 3, 1, 14, 0),
+        end_time: Time.utc(2026, 3, 1, 15, 0)
+      )
+    end
+
+    assert_equal "UTC", captured_event.start.time_zone
+    assert_equal "UTC", captured_event.end.time_zone
+  end
+
   test "#create_event returns the created event ID in result hash" do
     with_mock_calendar_service(:create, "abc-xyz-123") do
       result = @service.create_event(
@@ -212,7 +226,7 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
 
   private
 
-  def with_mock_calendar_service(mode, data = nil)
+  def with_mock_calendar_service(mode, data = nil, capture_callback = nil)
     service_mock = Object.new
     service_mock.define_singleton_method(:authorization=) { |_auth| }
 
@@ -227,7 +241,10 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
       service_mock.define_singleton_method(:query_freebusy) { |_req| freebusy_response }
     when :create
       created_event = Google::Apis::CalendarV3::Event.new(id: data)
-      service_mock.define_singleton_method(:insert_event) { |_cal_id, _event, **_opts| created_event }
+      service_mock.define_singleton_method(:insert_event) do |_cal_id, event, **_opts|
+        capture_callback&.call(event)
+        created_event
+      end
     when :error
       service_mock.define_singleton_method(:query_freebusy) { |_req|
         raise Google::Apis::ServerError, "Internal Server Error"

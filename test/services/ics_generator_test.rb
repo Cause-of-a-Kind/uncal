@@ -39,8 +39,8 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     booking = bookings(:confirmed_one)
     ics = IcsGenerator.new(booking).generate
 
-    assert_match "DTSTART", ics
-    assert_match "DTEND", ics
+    assert_match(/DTSTART[^:]*:.*Z|DTSTART;TZID=UTC:/, ics)
+    assert_match(/DTEND[^:]*:.*Z|DTEND;TZID=UTC:/, ics)
   end
 
   test "handles nil location gracefully" do

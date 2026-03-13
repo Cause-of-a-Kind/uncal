@@ -50,8 +50,8 @@ class GoogleCalendarService
 
     event = Google::Apis::CalendarV3::Event.new(
       summary: title,
-      start: Google::Apis::CalendarV3::EventDateTime.new(date_time: start_time.iso8601),
-      end: Google::Apis::CalendarV3::EventDateTime.new(date_time: end_time.iso8601),
+      start: Google::Apis::CalendarV3::EventDateTime.new(date_time: start_time.iso8601, time_zone: "UTC"),
+      end: Google::Apis::CalendarV3::EventDateTime.new(date_time: end_time.iso8601, time_zone: "UTC"),
       description: description,
       location: location
     )

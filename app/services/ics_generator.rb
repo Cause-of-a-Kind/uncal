@@ -7,8 +7,8 @@ class IcsGenerator
   def generate
     cal = Icalendar::Calendar.new
     cal.event do |e|
-      e.dtstart = Icalendar::Values::DateTime.new(@booking.start_time.utc)
-      e.dtend = Icalendar::Values::DateTime.new(@booking.end_time.utc)
+      e.dtstart = Icalendar::Values::DateTime.new(@booking.start_time.utc, "tzid" => "UTC")
+      e.dtend = Icalendar::Values::DateTime.new(@booking.end_time.utc, "tzid" => "UTC")
       e.summary = @link.meeting_name
       e.description = @booking.invitee_notes
       e.location = resolve_location
