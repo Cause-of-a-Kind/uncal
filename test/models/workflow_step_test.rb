@@ -120,6 +120,17 @@ class WorkflowStepTest < ActiveSupport::TestCase
     assert_includes error, "bar"
   end
 
+  test "error message includes allowed variable names" do
+    step = workflow_steps(:reminder_before)
+    step.email_body = "{{typo_name}}"
+    assert_not step.valid?
+    error = step.errors[:email_body].join
+    assert_includes error, "typo_name"
+    assert_includes error, "Allowed:"
+    assert_includes error, "{{invitee_name}}"
+    assert_includes error, "{{meeting_name}}"
+  end
+
   test "step with mix of valid and unknown variables is invalid" do
     step = workflow_steps(:reminder_before)
     step.email_body = "Hi {{invitee_name}}, your {{event_name}} is soon"

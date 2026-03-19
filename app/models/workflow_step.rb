@@ -26,7 +26,8 @@ class WorkflowStep < ApplicationRecord
 
     unknown = value.scan(/\{\{(\w+)\}\}/).flatten - ALLOWED_VARIABLES
     if unknown.any?
-      errors.add(attribute, "contains unknown variable(s): #{unknown.join(', ')}")
+      allowed = ALLOWED_VARIABLES.map { |v| "{{#{v}}}" }.join(", ")
+      errors.add(attribute, "contains unknown variable(s): #{unknown.join(', ')}. Allowed: #{allowed}")
     end
   end
 end

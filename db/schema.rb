@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_012812) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_19_201548) do
   create_table "availability_windows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_of_week", null: false
@@ -83,6 +83,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_012812) do
     t.integer "buffer_minutes", default: 0, null: false
     t.datetime "created_at", null: false
     t.integer "created_by_id", null: false
+    t.text "description"
     t.integer "max_bookings_per_day"
     t.integer "max_future_days", default: 30, null: false
     t.integer "meeting_duration_minutes", null: false

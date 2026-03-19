@@ -136,6 +136,15 @@ class ScheduleLinkTest < ActiveSupport::TestCase
     assert_includes duplicate.errors[:slug], "has already been taken"
   end
 
+  test "description is optional" do
+    link = schedule_links(:one)
+    link.description = nil
+    assert link.valid?
+
+    link.description = "Bring your laptop"
+    assert link.valid?
+  end
+
   test "belongs to created_by user" do
     link = schedule_links(:one)
     assert_equal users(:one), link.created_by

@@ -96,7 +96,7 @@ class ScheduleLinksController < ApplicationController
       :name, :meeting_name, :meeting_duration_minutes,
       :meeting_location_type, :meeting_location_value,
       :timezone, :buffer_minutes, :max_bookings_per_day,
-      :max_future_days, :workflow_id
+      :max_future_days, :workflow_id, :description
     )
   end
 

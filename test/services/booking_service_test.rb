@@ -166,6 +166,30 @@ class BookingServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "passes combined description to GCal when schedule link has description" do
+    @link.update!(description: "Bring your laptop")
+
+    captured_description = nil
+    GoogleCalendarService.define_singleton_method(:new) do |user|
+      service = Object.new
+      service.define_singleton_method(:busy_times) { |_start, _end| [] }
+      service.define_singleton_method(:create_event) do |**args|
+        captured_description = args[:description]
+        { event_id: "fake_event_id", meet_url: nil }
+      end
+      service
+    end
+
+    @user_one.update!(google_calendar_connected: true, google_calendar_token: "t", google_calendar_refresh_token: "r", google_calendar_token_expires_at: 1.hour.from_now)
+
+    travel_to Time.utc(2026, 3, 3, 0, 0) do
+      result = BookingService.new(@link, valid_slot_params).call
+      assert result.success?
+      assert_includes captured_description, "Bring your laptop"
+      assert_includes captured_description, "Looking forward to it"
+    end
+  end
+
   test "does not fail when GCal event creation fails" do
     GoogleCalendarService.define_singleton_method(:new) do |user|
       service = Object.new

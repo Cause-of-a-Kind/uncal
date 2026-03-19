@@ -1,5 +1,20 @@
 <%# locals: (workflow:, step:) %>
 <%= form_with model: [workflow, step], id: "step_form", class: "space-y-4" do |form| %>
+  <% if step.errors.any? %>
+    <div class="rounded-lg bg-red-50 p-4 ring-1 ring-inset ring-red-200">
+      <div class="flex">
+        <div class="text-sm text-red-700">
+          <p class="font-medium"><%= pluralize(step.errors.count, "error") %> prevented this step from being saved:</p>
+          <ul class="mt-2 list-disc pl-5 space-y-1">
+            <% step.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <%= render "ui/form_field", form: form, field: :timing_minutes, label: "Minutes", required: true, placeholder: "e.g. 60" %>
     <%= render "ui/form_field", form: form, field: :timing_direction, type: :select, label: "When", options: [["Before meeting", "before"], ["After meeting", "after"]], required: true %>

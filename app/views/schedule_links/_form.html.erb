@@ -51,6 +51,11 @@
         <p class="text-sm text-gray-500">A Google Meet link will be generated automatically for each booking.</p>
       </div>
     </div>
+
+    <%= render "ui/form_field", form: form, field: :description, type: :textarea,
+        label: "Description",
+        hint: "Optional. Appears in calendar invites as plain text.",
+        placeholder: "e.g. Please bring your laptop and any questions." %>
   <% end %>
 
   <%= render layout: "ui/card", locals: { title: "Scheduling Rules", description: "Control when and how often meetings can be booked." } do %>

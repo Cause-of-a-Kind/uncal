@@ -70,6 +70,35 @@ class WorkflowStepsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "create with unknown variable returns error with allowed variables via turbo_stream" do
+    assert_no_difference "WorkflowStep.count" do
+      post workflow_workflow_steps_path(@workflow), params: { workflow_step: {
+        timing_direction: "before",
+        timing_minutes: 30,
+        email_subject: "Reminder for {{bad_var}}",
+        email_body: "Hi {{invitee_name}}",
+        recipient_type: "invitee"
+      } }, as: :turbo_stream
+    end
+
+    assert_response :success
+    assert_match "bad_var", response.body
+    assert_match "Allowed:", response.body
+  end
+
+  test "update with unknown variable renders edit with error banner" do
+    step = workflow_steps(:reminder_before)
+
+    patch workflow_workflow_step_path(@workflow, step), params: { workflow_step: {
+      email_subject: "Reminder for {{bad_var}}",
+      email_body: step.email_body
+    } }
+
+    assert_response :unprocessable_entity
+    assert_match "bad_var", response.body
+    assert_match "Allowed:", response.body
+  end
+
   test "cannot manage steps on another users workflow" do
     other_workflow = users(:two).workflows.create!(name: "Other")
 

@@ -43,6 +43,36 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     assert_match(/DTEND[^:]*:.*Z|DTEND;TZID=UTC:/, ics)
   end
 
+  test "includes schedule link description in event description" do
+    booking = bookings(:confirmed_one)
+    booking.schedule_link.update!(description: "Please bring your laptop")
+    booking.update!(invitee_notes: nil)
+    ics = IcsGenerator.new(booking).generate
+
+    assert_match "Please bring your laptop", ics
+  end
+
+  test "combines schedule link description with invitee notes" do
+    booking = bookings(:confirmed_one)
+    booking.schedule_link.update!(description: "Bring your laptop")
+    booking.update!(invitee_notes: "Looking forward to it")
+    ics = IcsGenerator.new(booking).generate
+    # ICS format folds long lines — unfold before matching
+    unfolded = ics.gsub("\r\n ", "")
+
+    assert_match "Bring your laptop", unfolded
+    assert_match "Looking forward to it", unfolded
+  end
+
+  test "uses invitee notes alone when no schedule link description" do
+    booking = bookings(:confirmed_one)
+    booking.schedule_link.update!(description: nil)
+    booking.update!(invitee_notes: "Some notes")
+    ics = IcsGenerator.new(booking).generate
+
+    assert_match "Some notes", ics
+  end
+
   test "handles nil location gracefully" do
     booking = bookings(:meet_booking)
     booking.update!(meeting_location_url: nil)

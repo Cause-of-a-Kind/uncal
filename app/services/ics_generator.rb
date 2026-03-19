@@ -10,7 +10,7 @@ class IcsGenerator
       e.dtstart = Icalendar::Values::DateTime.new(@booking.start_time.utc, "tzid" => "UTC")
       e.dtend = Icalendar::Values::DateTime.new(@booking.end_time.utc, "tzid" => "UTC")
       e.summary = @link.meeting_name
-      e.description = @booking.invitee_notes
+      e.description = build_description
       e.location = resolve_location
       e.organizer = Icalendar::Values::CalAddress.new("mailto:#{@link.created_by.email_address}", cn: @link.created_by.name)
     end
@@ -18,6 +18,15 @@ class IcsGenerator
   end
 
   private
+
+  def build_description
+    parts = []
+    parts << @link.description if @link.description.present?
+    if @booking.invitee_notes.present?
+      parts << "---\nNotes from #{@booking.invitee_name}:\n#{@booking.invitee_notes}"
+    end
+    parts.join("\n\n").presence
+  end
 
   def resolve_location
     if @link.meeting_location_type == "google_meet"

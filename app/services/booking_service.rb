@@ -73,7 +73,7 @@ class BookingService
           title: "#{@link.meeting_name} with #{booking.invitee_name}",
           start_time: booking.start_time,
           end_time: booking.end_time,
-          description: booking.invitee_notes,
+          description: build_calendar_description(booking),
           location: is_meet ? booking.meeting_location_url : @link.meeting_location_value,
           add_conference: is_meet && member == creator,
           attendees: attendee_emails
@@ -100,6 +100,15 @@ class BookingService
     end
 
     booking.update!(contact: @link.created_by.contacts.find_by(email: booking.invitee_email))
+  end
+
+  def build_calendar_description(booking)
+    parts = []
+    parts << @link.description if @link.description.present?
+    if booking.invitee_notes.present?
+      parts << "---\nNotes from #{booking.invitee_name}:\n#{booking.invitee_notes}"
+    end
+    parts.join("\n\n").presence
   end
 
   def invalidate_caches(booking)
