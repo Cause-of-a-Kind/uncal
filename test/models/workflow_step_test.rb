@@ -82,4 +82,48 @@ class WorkflowStepTest < ActiveSupport::TestCase
       assert step.valid?, "Expected #{type} to be valid"
     end
   end
+
+  test "step with valid template variables passes validation" do
+    step = workflow_steps(:reminder_before)
+    step.email_subject = "Reminder for {{meeting_name}}"
+    step.email_body = "Hi {{invitee_name}}, your meeting is on {{meeting_date}} at {{meeting_time}}."
+    assert step.valid?
+  end
+
+  test "step with no template variables passes validation" do
+    step = workflow_steps(:reminder_before)
+    step.email_subject = "Plain subject"
+    step.email_body = "Plain body with no variables"
+    assert step.valid?
+  end
+
+  test "step with unknown variable in subject is invalid" do
+    step = workflow_steps(:reminder_before)
+    step.email_subject = "Reminder for {{event_name}}"
+    assert_not step.valid?
+    assert_includes step.errors[:email_subject].join, "event_name"
+  end
+
+  test "step with unknown variable in body is invalid" do
+    step = workflow_steps(:reminder_before)
+    step.email_body = "See you at {{event_location}}"
+    assert_not step.valid?
+    assert_includes step.errors[:email_body].join, "event_location"
+  end
+
+  test "error message lists specific unknown variable names" do
+    step = workflow_steps(:reminder_before)
+    step.email_body = "{{foo}} and {{bar}}"
+    assert_not step.valid?
+    error = step.errors[:email_body].join
+    assert_includes error, "foo"
+    assert_includes error, "bar"
+  end
+
+  test "step with mix of valid and unknown variables is invalid" do
+    step = workflow_steps(:reminder_before)
+    step.email_body = "Hi {{invitee_name}}, your {{event_name}} is soon"
+    assert_not step.valid?
+    assert_includes step.errors[:email_body].join, "event_name"
+  end
 end
