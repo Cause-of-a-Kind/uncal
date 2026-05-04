@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   root "dashboard#show"
   get "dashboard", to: "dashboard#show"
+  get "privacy", to: "legal#privacy", as: :privacy
 
   resources :invitations, only: %i[index new create destroy]
   resources :invitation_acceptances, only: %i[show update], param: :token
