@@ -61,12 +61,13 @@ class BookingService
     is_meet = @link.meeting_location_type == "google_meet"
     creator = @link.created_by
 
-    connected_members = @link.members.select(&:google_calendar_connected?)
+    connected_members = @link.members.select { |member| member.primary_google_calendar_connection.present? || member.google_calendar_connected }
     sorted_members = connected_members.sort_by { |m| m == creator ? 0 : 1 }
 
     sorted_members.each do |member|
       begin
-        service = GoogleCalendarService.new(member)
+        connection = member.primary_google_calendar_connection
+        service = GoogleCalendarService.new(connection || member)
         attendee_emails = (member == creator) ? [ booking.invitee_email ] : []
 
         result = service.create_event(
@@ -79,7 +80,13 @@ class BookingService
           attendees: attendee_emails
         )
 
-        booking.update!(google_event_id: result[:event_id]) if result[:event_id]
+        if result[:event_id]
+          booking.update!(google_event_id: result[:event_id]) if member == creator
+          booking.google_calendar_events.create!(
+            google_calendar_connection: connection,
+            google_event_id: result[:event_id]
+          ) if connection
+        end
 
         if is_meet && member == creator && result[:meet_url].present?
           booking.update!(meeting_location_url: result[:meet_url])

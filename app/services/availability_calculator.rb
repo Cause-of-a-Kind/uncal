@@ -93,13 +93,19 @@ class AvailabilityCalculator
   end
 
   def fetch_busy_times(member)
-    return [] unless member.google_calendar_connected?
+    connections = member.active_google_calendar_connections.to_a
 
-    service = GoogleCalendarService.new(member)
-    busy = service.busy_times(@date, @date)
-    busy.map { |b| [ b[:start], b[:end] ] }
-  rescue GoogleCalendarService::NotConnectedError, GoogleCalendarService::TokenRevokedError
-    []
+    if connections.empty? && member.google_calendar_connected
+      busy = GoogleCalendarService.new(member).busy_times(@date, @date)
+      return busy.map { |b| [ b[:start], b[:end] ] }
+    end
+
+    connections.flat_map do |connection|
+      busy = GoogleCalendarService.new(connection).busy_times(@date, @date)
+      busy.map { |b| [ b[:start], b[:end] ] }
+    rescue GoogleCalendarService::NotConnectedError, GoogleCalendarService::TokenRevokedError
+      []
+    end
   end
 
   def date_start_utc

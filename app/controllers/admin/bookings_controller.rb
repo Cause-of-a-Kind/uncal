@@ -40,15 +40,7 @@ module Admin
 
       WorkflowCanceller.new(@booking).cancel_all
 
-      if @booking.google_event_id.present?
-        @booking.schedule_link.members.select(&:google_calendar_connected?).each do |member|
-          begin
-            GoogleCalendarService.new(member).delete_event(@booking.google_event_id)
-          rescue => e
-            Rails.logger.error "Failed to delete GCal event for member #{member.id}: #{e.message}"
-          end
-        end
-      end
+      delete_google_calendar_events(@booking)
 
       date = @booking.start_time.to_date
       @booking.schedule_link.members.each do |member|
@@ -80,6 +72,30 @@ module Admin
       @booking = scope_bookings.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       head :not_found
+    end
+
+    def delete_google_calendar_events(booking)
+      if booking.google_calendar_events.exists?
+        booking.google_calendar_events.includes(:google_calendar_connection).find_each do |calendar_event|
+          connection = calendar_event.google_calendar_connection
+          next unless connection.active?
+
+          GoogleCalendarService.new(connection).delete_event(calendar_event.google_event_id)
+        rescue => e
+          Rails.logger.error "Failed to delete GCal event #{calendar_event.id}: #{e.message}"
+        end
+        return
+      end
+
+      return if booking.google_event_id.blank?
+
+      booking.schedule_link.members.select(&:google_calendar_connected?).each do |member|
+        begin
+          GoogleCalendarService.new(member.primary_google_calendar_connection || member).delete_event(booking.google_event_id)
+        rescue => e
+          Rails.logger.error "Failed to delete legacy GCal event for member #{member.id}: #{e.message}"
+        end
+      end
     end
   end
 end

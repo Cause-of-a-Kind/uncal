@@ -1,0 +1,65 @@
+<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Calendar</h1>
+    <p class="mt-1 text-sm text-gray-600">Busy times across connected Google accounts.</p>
+  </div>
+
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <%= form_with url: calendar_path, method: :get, data: { turbo_action: "advance" }, class: "flex items-center gap-2" do |form| %>
+      <%= form.hidden_field :week, value: @week_start %>
+      <%= form.select :user_id,
+        options_from_collection_for_select(@team_members, :id, :name, @selected_user.id),
+        {},
+        class: "rounded-lg border-0 py-2 pl-3 pr-10 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-900",
+        onchange: "this.form.requestSubmit()" %>
+    <% end %>
+
+    <div class="flex items-center gap-2">
+      <%= render "ui/button", label: "Previous", href: calendar_path(user_id: @selected_user.id, week: @week_start - 7.days), variant: :secondary, size: :sm %>
+      <%= render "ui/button", label: "Today", href: calendar_path(user_id: @selected_user.id), variant: :secondary, size: :sm %>
+      <%= render "ui/button", label: "Next", href: calendar_path(user_id: @selected_user.id, week: @week_start + 7.days), variant: :secondary, size: :sm %>
+    </div>
+  </div>
+</div>
+
+<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+  <div class="grid min-w-[900px]" style="grid-template-columns: 72px repeat(7, minmax(110px, 1fr));">
+    <div class="border-b border-gray-200"></div>
+    <% @week_days.each do |day| %>
+      <div class="border-b border-l border-gray-200 px-3 py-3">
+        <p class="text-xs font-medium uppercase text-gray-500"><%= day.strftime("%a") %></p>
+        <p class="text-sm font-semibold text-gray-900"><%= day.strftime("%b %-d") %></p>
+      </div>
+    <% end %>
+
+    <div class="relative bg-gray-50" style="height: <%= calendar_grid_height %>px;">
+      <% calendar_hour_labels.each_with_index do |label, index| %>
+        <div class="absolute left-0 right-0 border-t border-gray-200 px-2 text-xs text-gray-500" style="top: <%= index * CalendarHelper::HOUR_HEIGHT %>px;">
+          <%= label %>
+        </div>
+      <% end %>
+    </div>
+
+    <% @week_days.each do |day| %>
+      <div class="relative border-l border-gray-200" style="height: <%= calendar_grid_height %>px;">
+        <% calendar_hour_labels.each_with_index do |_label, index| %>
+          <div class="absolute left-0 right-0 border-t border-gray-100" style="top: <%= index * CalendarHelper::HOUR_HEIGHT %>px;"></div>
+        <% end %>
+
+        <% @busy_blocks.each do |block| %>
+          <% next unless block[:start_time].in_time_zone(Current.user.timezone).to_date <= day && block[:end_time].in_time_zone(Current.user.timezone).to_date >= day %>
+          <div class="absolute left-2 right-2 overflow-hidden rounded-md border border-gray-300 bg-gray-100 px-2 py-1 text-xs text-gray-700" style="<%= calendar_block_style(block, day) %>">
+            <div class="truncate font-medium">Busy</div>
+            <div class="truncate text-gray-500"><%= block[:connection].display_name %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @busy_blocks.empty? %>
+  <div class="mt-6">
+    <%= render "ui/empty_state", title: "No busy times found", description: "This user has no connected Google Calendar busy blocks for the selected week." %>
+  </div>
+<% end %>

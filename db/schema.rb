@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_19_201548) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_04_120002) do
   create_table "availability_windows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_of_week", null: false
@@ -54,6 +54,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_201548) do
     t.index ["user_id", "email"], name: "index_contacts_on_user_id_and_email", unique: true
     t.index ["user_id", "last_booked_at"], name: "index_contacts_on_user_id_and_last_booked_at"
     t.index ["user_id"], name: "index_contacts_on_user_id"
+  end
+
+  create_table "google_calendar_connections", force: :cascade do |t|
+    t.string "access_token"
+    t.string "account_email"
+    t.string "calendar_id", default: "primary", null: false
+    t.datetime "created_at", null: false
+    t.string "label"
+    t.string "last_error"
+    t.boolean "primary", default: false, null: false
+    t.string "refresh_token"
+    t.datetime "revoked_at"
+    t.datetime "token_expires_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "account_email"], name: "idx_gcal_connections_unique_account", unique: true, where: "account_email IS NOT NULL AND revoked_at IS NULL"
+    t.index ["user_id", "primary"], name: "idx_gcal_connections_one_primary_per_user", unique: true, where: "\"primary\" = 1 AND revoked_at IS NULL"
+    t.index ["user_id"], name: "index_google_calendar_connections_on_user_id"
+  end
+
+  create_table "google_calendar_events", force: :cascade do |t|
+    t.integer "booking_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "google_calendar_connection_id", null: false
+    t.string "google_event_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id", "google_calendar_connection_id"], name: "idx_gcal_events_unique_booking_connection", unique: true
+    t.index ["booking_id"], name: "index_google_calendar_events_on_booking_id"
+    t.index ["google_calendar_connection_id"], name: "index_google_calendar_events_on_google_calendar_connection_id"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -154,6 +183,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_201548) do
   add_foreign_key "bookings", "contacts"
   add_foreign_key "bookings", "schedule_links"
   add_foreign_key "contacts", "users"
+  add_foreign_key "google_calendar_connections", "users"
+  add_foreign_key "google_calendar_events", "bookings"
+  add_foreign_key "google_calendar_events", "google_calendar_connections"
   add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "schedule_link_members", "schedule_links"
   add_foreign_key "schedule_link_members", "users"

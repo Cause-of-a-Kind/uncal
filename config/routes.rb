@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   resources :invitation_acceptances, only: %i[show update], param: :token
 
   resource :settings, only: %i[edit update]
+  resource :calendar, only: [ :show ], controller: "calendar"
   resources :team_members, only: %i[destroy]
   resources :workflows do
     member do
@@ -37,6 +38,12 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  resource :google_calendar_connections, only: [], controller: "google_calendar_connections" do
+    get :connect
+    get :callback
+  end
+  resources :google_calendar_connections, only: [ :destroy ]
 
   resource :google_calendar, only: [], controller: "google_calendar" do
     get :connect

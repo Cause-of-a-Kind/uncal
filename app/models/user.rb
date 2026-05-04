@@ -11,6 +11,8 @@ class User < ApplicationRecord
 
   has_many :contacts, dependent: :destroy
   has_many :workflows, dependent: :destroy
+  has_many :google_calendar_connections, dependent: :destroy
+  has_many :google_calendar_events, through: :google_calendar_connections
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
@@ -19,6 +21,25 @@ class User < ApplicationRecord
 
   encrypts :google_calendar_token
   encrypts :google_calendar_refresh_token
+
+  def active_google_calendar_connections
+    google_calendar_connections.active.primary_first
+  end
+
+  def primary_google_calendar_connection
+    active_google_calendar_connections.find_by(primary: true) || active_google_calendar_connections.first
+  end
+
+  def google_calendar_connected?
+    primary_google_calendar_connection.present? || google_calendar_connected
+  end
+
+  def promote_google_calendar_primary!
+    return if google_calendar_connections.active.where(primary: true).exists?
+
+    replacement = google_calendar_connections.active.order(:created_at).first
+    replacement&.update!(primary: true)
+  end
 
   private
 

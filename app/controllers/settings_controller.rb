@@ -1,6 +1,7 @@
 class SettingsController < ApplicationController
   def edit
     @user = Current.user
+    @google_calendar_connections = @user.google_calendar_connections.active.primary_first
     @team_members = scope_team_members
     @pending_invitations = scope_invitations
   end
@@ -12,6 +13,7 @@ class SettingsController < ApplicationController
       redirect_to edit_settings_path, notice: "Settings updated."
     else
       @team_members = scope_team_members
+      @google_calendar_connections = @user.google_calendar_connections.active.primary_first
       @pending_invitations = scope_invitations
       render :edit, status: :unprocessable_entity
     end

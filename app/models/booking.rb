@@ -1,6 +1,7 @@
 class Booking < ApplicationRecord
   belongs_to :schedule_link
   belongs_to :contact, optional: true
+  has_many :google_calendar_events, dependent: :destroy
 
   validates :start_time, presence: true
   validates :end_time, presence: true

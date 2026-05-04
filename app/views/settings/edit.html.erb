@@ -10,14 +10,31 @@
     <% end %>
   <% end %>
 
-  <%= render layout: "ui/card", locals: { title: "Google Calendar", description: "Connect your calendar to check availability and create events." } do %>
-    <% if Current.user.google_calendar_connected? %>
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-green-600 font-medium">Connected</span>
-        <%= render "ui/button", label: "Disconnect", href: disconnect_google_calendar_path, method: :delete, variant: :danger, size: :sm %>
+  <%= render layout: "ui/card", locals: { title: "Google Calendar", description: "Connect calendars to check availability. Bookings are written to your primary connection." } do %>
+    <% if @google_calendar_connections.any? %>
+      <ul class="divide-y divide-gray-200 -mx-6">
+        <% @google_calendar_connections.each do |connection| %>
+          <li class="flex items-center justify-between gap-4 px-6 py-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="truncate text-sm font-medium text-gray-900"><%= connection.display_name %></p>
+                <% if connection.primary? %>
+                  <%= render "ui/badge", label: "Primary", color: :blue %>
+                <% end %>
+              </div>
+              <p class="text-sm text-gray-500">
+                <%= connection.primary? ? "Receives new booking events" : "Availability only" %>
+              </p>
+            </div>
+            <%= render "ui/button", label: "Disconnect", href: google_calendar_connection_path(connection), method: :delete, variant: :danger, size: :sm %>
+          </li>
+        <% end %>
+      </ul>
+      <div class="mt-4">
+        <%= render "ui/button", label: "Add Google account", href: connect_google_calendar_connections_path, variant: :secondary %>
       </div>
     <% else %>
-      <%= render "ui/button", label: "Connect Google Calendar", href: connect_google_calendar_path, variant: :secondary %>
+      <%= render "ui/button", label: "Connect Google Calendar", href: connect_google_calendar_connections_path, variant: :secondary %>
     <% end %>
   <% end %>
 

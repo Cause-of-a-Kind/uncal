@@ -37,6 +37,7 @@ class GoogleCalendarControllerTest < ActionDispatch::IntegrationTest
     @user.reload
     assert_equal "ya29.test-access-token", @user.google_calendar_token
     assert_equal "1//test-refresh-token", @user.google_calendar_refresh_token
+    assert_equal 1, @user.google_calendar_connections.active.count
   end
 
   test "GET /google_calendar/callback sets google_calendar_connected to true" do
@@ -88,6 +89,46 @@ class GoogleCalendarControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Google Calendar disconnected.", flash[:notice]
   end
 
+  test "GET /google_calendar_connections/callback adds another connection without overwriting primary" do
+    sign_in_as @user
+    primary = @user.google_calendar_connections.create!(
+      account_email: "primary@example.com",
+      access_token: "primary-access",
+      refresh_token: "primary-refresh",
+      token_expires_at: 1.hour.from_now
+    )
+
+    stub_token_exchange do
+      stub_primary_calendar_metadata("customer@example.com") do
+        get callback_google_calendar_connections_path, params: { code: "test-auth-code" }
+      end
+    end
+
+    assert_redirected_to edit_settings_path
+    assert_equal 2, @user.google_calendar_connections.active.count
+    assert primary.reload.primary?
+    assert @user.google_calendar_connections.active.exists?(account_email: "customer@example.com", primary: false)
+  end
+
+  test "GET /google_calendar_connections/callback updates duplicate account connection" do
+    sign_in_as @user
+    existing = @user.google_calendar_connections.create!(
+      account_email: "customer@example.com",
+      access_token: "old-access",
+      refresh_token: "old-refresh",
+      token_expires_at: 5.minutes.ago
+    )
+
+    stub_token_exchange do
+      stub_primary_calendar_metadata("customer@example.com") do
+        get callback_google_calendar_connections_path, params: { code: "test-auth-code" }
+      end
+    end
+
+    assert_equal 1, @user.google_calendar_connections.active.count
+    assert_equal "ya29.test-access-token", existing.reload.access_token
+  end
+
   private
 
   def stub_token_exchange(&block)
@@ -105,5 +146,19 @@ class GoogleCalendarControllerTest < ActionDispatch::IntegrationTest
     yield
   ensure
     Net::HTTP.define_singleton_method(:post_form, original_method)
+  end
+
+  def stub_primary_calendar_metadata(email)
+    service_mock = Object.new
+    service_mock.define_singleton_method(:authorization=) { |_auth| }
+    service_mock.define_singleton_method(:get_calendar) do |_calendar_id|
+      Google::Apis::CalendarV3::Calendar.new(id: email, summary: email)
+    end
+
+    original_new = Google::Apis::CalendarV3::CalendarService.method(:new)
+    Google::Apis::CalendarV3::CalendarService.define_singleton_method(:new) { |*_args| service_mock }
+    yield
+  ensure
+    Google::Apis::CalendarV3::CalendarService.define_singleton_method(:new, original_new)
   end
 end
