@@ -10,12 +10,12 @@
 
 <div class="space-y-6">
   <%= render layout: "ui/card", locals: { title: "Public Booking URL" } do %>
-    <div class="flex items-center gap-3" data-controller="clipboard">
-      <code class="flex-1 bg-gray-50 rounded-lg px-4 py-2 text-sm text-gray-700 font-mono" data-clipboard-target="source">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3" data-controller="clipboard">
+      <code class="block w-full min-w-0 overflow-x-auto whitespace-nowrap bg-gray-50 rounded-lg px-4 py-2 text-sm text-gray-700 font-mono" data-clipboard-target="source">
         <%= request.base_url %>/book/<%= @schedule_link.slug %>
       </code>
       <button type="button"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              class="inline-flex w-full sm:w-auto items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
               data-action="clipboard#copy"
               data-clipboard-target="button">
         Copy

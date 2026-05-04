@@ -63,6 +63,18 @@ class ScheduleLinksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to schedule_links_path
   end
 
+  test "show renders public booking url with mobile accessible copy button" do
+    link = schedule_links(:one)
+
+    get schedule_link_path(link)
+
+    assert_response :success
+    assert_select "[data-controller='clipboard']" do
+      assert_select "code.block.w-full.min-w-0.overflow-x-auto.whitespace-nowrap[data-clipboard-target='source']", text: %r{/book/#{link.slug}}
+      assert_select "button.w-full.sm\\:w-auto[data-action='clipboard#copy'][data-clipboard-target='button']", text: "Copy"
+    end
+  end
+
   test "destroy sets status to inactive" do
     link = schedule_links(:one)
     delete schedule_link_path(link)
