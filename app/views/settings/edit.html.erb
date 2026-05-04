@@ -31,10 +31,10 @@
         <% end %>
       </ul>
       <div class="mt-4">
-        <%= render "ui/button", label: "Add Google account", href: connect_google_calendar_connections_path, variant: :secondary %>
+        <%= render "ui/button", label: "Add Google account", href: connect_google_calendar_path, variant: :secondary %>
       </div>
     <% else %>
-      <%= render "ui/button", label: "Connect Google Calendar", href: connect_google_calendar_connections_path, variant: :secondary %>
+      <%= render "ui/button", label: "Connect Google Calendar", href: connect_google_calendar_path, variant: :secondary %>
     <% end %>
   <% end %>
 

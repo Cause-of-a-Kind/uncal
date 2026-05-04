@@ -42,4 +42,12 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get edit_settings_path
     assert_response :success
   end
+
+  test "google calendar connect buttons use registered legacy oauth route" do
+    get edit_settings_path
+
+    assert_response :success
+    assert_select "a[href=?]", connect_google_calendar_path
+    assert_select "a[href=?]", connect_google_calendar_connections_path, count: 0
+  end
 end
