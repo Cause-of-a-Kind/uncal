@@ -60,9 +60,37 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "#create_event emails guests when attendees are present" do
+    options = nil
+    with_mock_calendar_service(:create, "guest-event", ->(_event, opts) { options = opts }) do
+      @service.create_event(title: "Guest meeting", start_time: Time.current, end_time: 1.hour.from_now,
+                            attendees: [ "guest@example.com" ])
+    end
+
+    assert_equal "all", options[:send_updates]
+  end
+
+  test "#create_event does not email guests when there are no attendees" do
+    options = nil
+    with_mock_calendar_service(:create, "host-event", ->(_event, opts) { options = opts }) do
+      @service.create_event(title: "Host meeting", start_time: Time.current, end_time: 1.hour.from_now)
+    end
+
+    assert_equal "none", options[:send_updates]
+  end
+
+  test "#delete_event notifies guests of cancellations" do
+    options = nil
+    with_mock_calendar_service(:delete, nil, ->(opts) { options = opts }) do
+      @service.delete_event("event123")
+    end
+
+    assert_equal "all", options[:send_updates]
+  end
+
   test "#create_event includes UTC timezone on event times" do
     captured_event = nil
-    with_mock_calendar_service(:create, "tz-test", ->(event) { captured_event = event }) do
+    with_mock_calendar_service(:create, "tz-test", ->(event, _opts) { captured_event = event }) do
       @service.create_event(
         title: "TZ Test",
         start_time: Time.utc(2026, 3, 1, 14, 0),
@@ -241,9 +269,13 @@ class GoogleCalendarServiceTest < ActiveSupport::TestCase
       service_mock.define_singleton_method(:query_freebusy) { |_req| freebusy_response }
     when :create
       created_event = Google::Apis::CalendarV3::Event.new(id: data)
-      service_mock.define_singleton_method(:insert_event) do |_cal_id, event, **_opts|
-        capture_callback&.call(event)
+      service_mock.define_singleton_method(:insert_event) do |_cal_id, event, **opts|
+        capture_callback&.call(event, opts)
         created_event
+      end
+    when :delete
+      service_mock.define_singleton_method(:delete_event) do |_cal_id, _event_id, **opts|
+        capture_callback&.call(opts)
       end
     when :error
       service_mock.define_singleton_method(:query_freebusy) { |_req|

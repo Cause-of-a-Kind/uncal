@@ -12,6 +12,28 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     assert_match "END:VCALENDAR", ics
   end
 
+  test "published calendar attachment has a stable UID and no scheduling request" do
+    booking = bookings(:confirmed_one)
+    first = IcsGenerator.new(booking).generate
+    second = IcsGenerator.new(booking).generate
+
+    assert_match(/\r?\nMETHOD:PUBLISH\r?\n/, first)
+    assert_no_match(/\r?\nATTENDEE[;:]/, first)
+    assert_equal first[/^UID:(.+)$/, 1], second[/^UID:(.+)$/, 1]
+  end
+
+  test "request includes the guest and has the same UID as a cancellation" do
+    booking = bookings(:confirmed_one)
+    request = IcsGenerator.new(booking, method: :request).generate
+    cancellation = IcsGenerator.new(booking, method: :cancel).generate
+
+    assert_match(/\r?\nMETHOD:REQUEST\r?\n/, request)
+    assert_includes request, "mailto:#{booking.invitee_email}"
+    assert_match(/\r?\nMETHOD:CANCEL\r?\n/, cancellation)
+    assert_match(/\r?\nSTATUS:CANCELLED\r?\n/, cancellation)
+    assert_equal request[/^UID:(.+)$/, 1], cancellation[/^UID:(.+)$/, 1]
+  end
+
   test "generates valid ics for physical location type" do
     booking = bookings(:confirmed_one)
     booking.schedule_link.update!(meeting_location_type: "physical", meeting_location_value: "123 Main St")

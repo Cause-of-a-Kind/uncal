@@ -77,7 +77,10 @@ class GoogleCalendarService
       event.attendees = attendees.map { |email| Google::Apis::CalendarV3::EventAttendee.new(email: email) }
     end
 
-    result = client.insert_event(calendar_id, event, conference_data_version: add_conference ? 1 : 0, send_updates: "none")
+    # Google sends the actual guest invitation (including to external calendar providers).
+    # Host-only copies have no guests to notify.
+    result = client.insert_event(calendar_id, event, conference_data_version: add_conference ? 1 : 0,
+                                 send_updates: attendees.any? ? "all" : "none")
     { event_id: result.id, meet_url: result.hangout_link }
   rescue NotConnectedError, TokenRevokedError
     raise
@@ -88,7 +91,8 @@ class GoogleCalendarService
   def delete_event(event_id)
     ensure_connected!
     refresh_token_if_needed!
-    client.delete_event(calendar_id, event_id, send_updates: "none")
+    # Notify guests when the organizer cancels; host-only copies have no guests.
+    client.delete_event(calendar_id, event_id, send_updates: "all")
   rescue NotConnectedError, TokenRevokedError
     raise
   rescue => e

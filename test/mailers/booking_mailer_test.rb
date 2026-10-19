@@ -57,6 +57,34 @@ class BookingMailerTest < ActionMailer::TestCase
     assert_match "BEGIN:VEVENT", ics_attachment.body.to_s
   end
 
+  test "confirmation uses a calendar request when Google did not invite the guest" do
+    @booking.update!(google_event_id: nil)
+    attachment = BookingMailer.confirmation(@booking).attachments["meeting.ics"]
+
+    assert_match(/method=REQUEST/i, attachment.content_type)
+    assert_match(/METHOD:REQUEST/, attachment.body.to_s)
+    assert_includes attachment.body.to_s, "mailto:#{@booking.invitee_email}"
+  end
+
+  test "confirmation uses a published calendar fallback when Google invited the guest" do
+    @booking.update!(google_event_id: "google-event-id")
+    attachment = BookingMailer.confirmation(@booking).attachments["meeting.ics"]
+
+    assert_match(/method=PUBLISH/i, attachment.content_type)
+    assert_match(/METHOD:PUBLISH/, attachment.body.to_s)
+    assert_no_match(/ATTENDEE/, attachment.body.to_s)
+  end
+
+  test "cancellation includes a matching calendar cancellation when Google did not invite the guest" do
+    @booking.update!(google_event_id: nil)
+    invitation = BookingMailer.confirmation(@booking).attachments["meeting.ics"].body.to_s
+    cancellation = BookingMailer.cancellation(@booking).attachments["meeting.ics"]
+
+    assert_match(/method=CANCEL/i, cancellation.content_type)
+    assert_match(/METHOD:CANCEL/, cancellation.body.to_s)
+    assert_equal invitation[/^UID:(.+)$/, 1], cancellation.body.to_s[/^UID:(.+)$/, 1]
+  end
+
   test "confirmation ics includes meeting details" do
     email = BookingMailer.confirmation(@booking)
     ics_body = email.attachments["meeting.ics"].body.to_s

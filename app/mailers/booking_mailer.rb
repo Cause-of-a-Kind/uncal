@@ -10,10 +10,12 @@ class BookingMailer < ApplicationMailer
       token: cancellation_token(@booking)
     )
 
-    ics_data = IcsGenerator.new(booking).generate
+    # Google's invitation is authoritative when the creator's event exists.
+    # Otherwise send an iTIP request so other calendar clients can accept it.
+    method = booking.google_event_id.present? ? :publish : :request
     attachments["meeting.ics"] = {
-      mime_type: "text/calendar; method=REQUEST",
-      content: ics_data
+      mime_type: "text/calendar; method=#{method.to_s.upcase}",
+      content: IcsGenerator.new(booking, method: method).generate
     }
 
     mail(
@@ -51,6 +53,13 @@ class BookingMailer < ApplicationMailer
     @link = booking.schedule_link
     @timezone = ActiveSupport::TimeZone[@booking.invitee_timezone]
     @members = @link.members
+
+    if booking.google_event_id.blank?
+      attachments["meeting.ics"] = {
+        mime_type: "text/calendar; method=CANCEL",
+        content: IcsGenerator.new(booking, method: :cancel).generate
+      }
+    end
 
     mail(
       to: @booking.invitee_email,
